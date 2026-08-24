@@ -1,0 +1,13 @@
+create type public.account_type as enum ('mobile_money', 'bank', 'cash', 'investment', 'other');
+create type public.income_category as enum ('stable', 'gig', 'product');
+create type public.project_status as enum ('active', 'completed', 'cancelled');
+create type public.bill_recurrence as enum ('monthly', 'yearly');
+create type public.bill_status as enum ('pending', 'paid', 'overdue');
+create type public.loan_direction as enum ('borrowed', 'lent');
+create type public.loan_status as enum ('outstanding', 'repaid', 'partially_repaid');
+create type public.event_status as enum ('active', 'closed');
+create type public.savings_base_type as enum ('all_income', 'stable_only', 'gig_only', 'custom');
+create type public.savings_period as enum ('monthly');
+create type public.goal_target_type as enum ('percentage_of_income', 'fixed_amount');
+create type public.alert_metric as enum ('total_spend', 'category_spend', 'total_income');
+create type public.alert_direction as enum ('above', 'below');

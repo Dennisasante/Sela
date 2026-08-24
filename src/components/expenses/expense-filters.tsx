@@ -1,0 +1,108 @@
+"use client";
+
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Account, ExpenseCategory } from "@/lib/supabase/types";
+
+export function ExpenseFilters({
+  categories,
+  accounts,
+  monthOffset,
+  monthLabel,
+  categoryId,
+  accountId,
+}: {
+  categories: ExpenseCategory[];
+  accounts: Account[];
+  monthOffset: number;
+  monthLabel: string;
+  categoryId?: string;
+  accountId?: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function updateParam(key: string, value: string | null) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === null || value === "all") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Previous month"
+          onClick={() => updateParam("month", String(monthOffset - 1))}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
+        <p className="text-sm font-medium">{monthLabel}</p>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Next month"
+          onClick={() => updateParam("month", monthOffset < 0 ? String(monthOffset + 1) : null)}
+          disabled={monthOffset >= 0}
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      </div>
+      <div className="flex gap-2">
+        <Select value={categoryId ?? "all"} onValueChange={(v) => updateParam("category", v)}>
+          <SelectTrigger className="w-full">
+            <SelectValue>
+              {(value: string | null) =>
+                value && value !== "all"
+                  ? (categories.find((c) => c.id === value)?.name ?? "All categories")
+                  : "All categories"
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={accountId ?? "all"} onValueChange={(v) => updateParam("account", v)}>
+          <SelectTrigger className="w-full">
+            <SelectValue>
+              {(value: string | null) =>
+                value && value !== "all"
+                  ? (accounts.find((a) => a.id === value)?.name ?? "All accounts")
+                  : "All accounts"
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All accounts</SelectItem>
+            {accounts.map((a) => (
+              <SelectItem key={a.id} value={a.id}>
+                {a.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}

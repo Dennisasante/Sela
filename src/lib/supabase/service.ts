@@ -1,0 +1,22 @@
+import "server-only";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/types";
+
+/**
+ * Bypasses RLS — only for trusted server contexts (cron jobs) that must
+ * operate across all users. Never import this from client or page code.
+ */
+export function createServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for service client"
+    );
+  }
+
+  return createSupabaseClient<Database>(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
