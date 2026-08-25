@@ -24,6 +24,7 @@ import {
   Bell,
   BookOpen,
   HelpCircle,
+  ClipboardList,
 } from "lucide-react";
 import {
   Sheet,
@@ -48,6 +49,7 @@ const menuGroups = [
   {
     label: "Manage",
     items: [
+      { href: "/commitments", label: "Commitments", icon: ClipboardList },
       { href: "/income?tab=clients", label: "Clients", icon: Users },
       { href: "/income?tab=projects", label: "Projects", icon: Briefcase },
       { href: "/subscriptions", label: "Subscriptions", icon: Repeat },

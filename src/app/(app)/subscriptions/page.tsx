@@ -12,7 +12,7 @@ export default async function SubscriptionsPage() {
 
   const [{ subscriptions, summary }, { data: categories }, { data: accounts }] = await Promise.all([
     getSubscriptions(supabase),
-    supabase.from("expense_categories").select("*").order("name"),
+    supabase.from("expense_categories").select("*").is("archived_at", null).order("name"),
     supabase.from("accounts").select("*").eq("is_active", true).order("name"),
   ]);
 

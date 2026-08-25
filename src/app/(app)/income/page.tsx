@@ -7,8 +7,8 @@ import {
   getMilestonesByProject,
 } from "@/lib/data/income";
 import { ensureCurrentOccurrences, getExpectedIncome } from "@/lib/data/planning";
-import { monthRangeForOffset } from "@/lib/format";
 import { formatMoney } from "@/lib/format";
+import { resolveDateRange } from "@/lib/date-range";
 import { IncomeFilters } from "@/components/income/income-filters";
 import { IncomeEntryRow } from "@/components/income/income-entry-row";
 import { ExpectedIncomeCard } from "@/components/income/expected-income-card";
@@ -33,7 +33,9 @@ export default async function IncomePage({
   searchParams,
 }: {
   searchParams: Promise<{
-    month?: string;
+    range?: string;
+    from?: string;
+    to?: string;
     source?: string;
     category?: string;
     tab?: string;
@@ -42,9 +44,9 @@ export default async function IncomePage({
     max?: string;
   }>;
 }) {
-  const { month, source, category, tab, search, min, max } = await searchParams;
-  const monthOffset = month ? parseInt(month, 10) || 0 : 0;
-  const { start, end, label } = monthRangeForOffset(monthOffset);
+  const { range, from, to, source, category, tab, search, min, max } = await searchParams;
+  const activeRange = range ?? "this_month";
+  const { start, end, label } = resolveDateRange(activeRange, from, to);
   const activeTab = INCOME_TABS.includes(tab as (typeof INCOME_TABS)[number])
     ? (tab as (typeof INCOME_TABS)[number])
     : "entries";
@@ -114,8 +116,10 @@ export default async function IncomePage({
         <TabsContent value="entries" className="space-y-3">
           <IncomeFilters
             sources={sources ?? []}
-            monthOffset={monthOffset}
-            monthLabel={label}
+            range={activeRange}
+            from={from}
+            to={to}
+            rangeLabel={label}
             sourceId={source}
             category={category}
             search={search}

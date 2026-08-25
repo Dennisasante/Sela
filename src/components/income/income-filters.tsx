@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 import type { IncomeSource } from "@/lib/supabase/types";
 
 const CATEGORIES = [
@@ -21,8 +21,10 @@ const CATEGORIES = [
 
 export function IncomeFilters({
   sources,
-  monthOffset,
-  monthLabel,
+  range,
+  from,
+  to,
+  rangeLabel,
   sourceId,
   category,
   search,
@@ -30,8 +32,10 @@ export function IncomeFilters({
   maxAmount,
 }: {
   sources: IncomeSource[];
-  monthOffset: number;
-  monthLabel: string;
+  range: string;
+  from?: string;
+  to?: string;
+  rangeLabel: string;
   sourceId?: string;
   category?: string;
   search?: string;
@@ -54,26 +58,7 @@ export function IncomeFilters({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Previous month"
-          onClick={() => updateParam("month", String(monthOffset - 1))}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <p className="text-sm font-medium">{monthLabel}</p>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Next month"
-          onClick={() => updateParam("month", monthOffset < 0 ? String(monthOffset + 1) : null)}
-          disabled={monthOffset >= 0}
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-      </div>
+      <DateRangeFilter range={range} from={from} to={to} label={rangeLabel} />
       <div className="flex gap-2">
         <Select value={sourceId ?? "all"} onValueChange={(v) => updateParam("source", v)}>
           <SelectTrigger className="w-full">

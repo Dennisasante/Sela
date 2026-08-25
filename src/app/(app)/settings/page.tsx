@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { PushSubscribeToggle } from "@/components/notifications/push-subscribe-toggle";
 import { InstallPrompt } from "@/components/settings/install-prompt";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import { ChangeEmailForm } from "@/components/settings/change-email-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronRight, HelpCircle, User } from "lucide-react";
@@ -134,8 +135,11 @@ export default async function SettingsPage() {
       <section className="space-y-2">
         <h2 className="text-sm font-medium text-muted-foreground">Security</h2>
         <Card>
-          <CardContent className="py-4">
-            <ChangePasswordForm />
+          <CardContent className="space-y-5 py-4">
+            <ChangeEmailForm currentEmail={user?.email ?? ""} />
+            <div className="border-t pt-4">
+              <ChangePasswordForm />
+            </div>
           </CardContent>
         </Card>
       </section>

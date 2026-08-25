@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,13 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 import type { Account, ExpenseCategory } from "@/lib/supabase/types";
 
 export function ExpenseFilters({
   categories,
   accounts,
-  monthOffset,
-  monthLabel,
+  range,
+  from,
+  to,
+  rangeLabel,
   categoryId,
   accountId,
   search,
@@ -26,8 +28,10 @@ export function ExpenseFilters({
 }: {
   categories: ExpenseCategory[];
   accounts: Account[];
-  monthOffset: number;
-  monthLabel: string;
+  range: string;
+  from?: string;
+  to?: string;
+  rangeLabel: string;
   categoryId?: string;
   accountId?: string;
   search?: string;
@@ -50,26 +54,7 @@ export function ExpenseFilters({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Previous month"
-          onClick={() => updateParam("month", String(monthOffset - 1))}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <p className="text-sm font-medium">{monthLabel}</p>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Next month"
-          onClick={() => updateParam("month", monthOffset < 0 ? String(monthOffset + 1) : null)}
-          disabled={monthOffset >= 0}
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-      </div>
+      <DateRangeFilter range={range} from={from} to={to} label={rangeLabel} />
       <div className="flex gap-2">
         <Select value={categoryId ?? "all"} onValueChange={(v) => updateParam("category", v)}>
           <SelectTrigger className="w-full">

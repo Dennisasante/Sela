@@ -7,7 +7,7 @@ export default async function AddExpensePage() {
   const [{ data: accounts }, { data: categories }, { data: events }, { data: projects }] =
     await Promise.all([
       supabase.from("accounts").select("*").eq("is_active", true).order("name"),
-      supabase.from("expense_categories").select("*").order("name"),
+      supabase.from("expense_categories").select("*").is("archived_at", null).order("name"),
       supabase.from("events").select("*").eq("status", "active").order("name"),
       supabase.from("projects").select("*").eq("status", "active").order("title"),
     ]);

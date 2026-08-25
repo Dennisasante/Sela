@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getExpenses, getBillsWithProgress } from "@/lib/data/expenses";
-import { monthRangeForOffset, formatMoney } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
+import { resolveDateRange } from "@/lib/date-range";
 import { ExpenseFilters } from "@/components/expenses/expense-filters";
 import { ExpenseRow } from "@/components/expenses/expense-row";
 import { BillCard } from "@/components/expenses/bill-card";
@@ -18,7 +19,9 @@ export default async function ExpensesPage({
   searchParams,
 }: {
   searchParams: Promise<{
-    month?: string;
+    range?: string;
+    from?: string;
+    to?: string;
     category?: string;
     account?: string;
     tab?: string;
@@ -27,9 +30,9 @@ export default async function ExpensesPage({
     max?: string;
   }>;
 }) {
-  const { month, category, account, tab, search, min, max } = await searchParams;
-  const monthOffset = month ? parseInt(month, 10) || 0 : 0;
-  const { start, end, label } = monthRangeForOffset(monthOffset);
+  const { range, from, to, category, account, tab, search, min, max } = await searchParams;
+  const activeRange = range ?? "this_month";
+  const { start, end, label } = resolveDateRange(activeRange, from, to);
   const activeTab = EXPENSE_TABS.includes(tab as (typeof EXPENSE_TABS)[number])
     ? (tab as (typeof EXPENSE_TABS)[number])
     : "expenses";
@@ -111,8 +114,10 @@ export default async function ExpensesPage({
           <ExpenseFilters
             categories={allCategories}
             accounts={allAccounts}
-            monthOffset={monthOffset}
-            monthLabel={label}
+            range={activeRange}
+            from={from}
+            to={to}
+            rangeLabel={label}
             categoryId={category}
             accountId={account}
             search={search}

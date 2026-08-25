@@ -13,7 +13,7 @@ export default async function BudgetsPage() {
 
   const [budgets, { data: categories }] = await Promise.all([
     getBudgetProgress(supabase),
-    supabase.from("expense_categories").select("*").order("name"),
+    supabase.from("expense_categories").select("*").is("archived_at", null).order("name"),
   ]);
 
   const budgetedCategoryIds = new Set(budgets.map((b) => b.categoryId));

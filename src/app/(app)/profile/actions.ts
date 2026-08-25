@@ -16,6 +16,15 @@ export async function updateDisplayName(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function updateEmail(formData: FormData) {
+  const newEmail = String(formData.get("new_email") ?? "").trim();
+  if (!newEmail) throw new Error("Email can't be empty");
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ email: newEmail });
+  if (error) throw new Error(getErrorMessage(error));
+}
+
 export async function updatePassword(formData: FormData) {
   const newPassword = String(formData.get("new_password") ?? "");
   const confirmPassword = String(formData.get("confirm_password") ?? "");

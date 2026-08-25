@@ -117,6 +117,9 @@ export type Event = BaseRow & {
 export type ExpenseCategory = BaseRow & {
   name: string;
   is_default: boolean;
+  icon: string;
+  color: string;
+  archived_at: string | null;
 };
 
 export type Loan = BaseRow & {

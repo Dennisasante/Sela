@@ -8,15 +8,40 @@ export async function createCategory(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("expense_categories").insert({
     name: String(formData.get("name")),
+    icon: String(formData.get("icon") || "shapes"),
+    color: String(formData.get("color") || "#64748b"),
     is_default: false,
   });
   if (error) throw new Error(error.message);
   revalidatePath("/settings");
 }
 
-export async function deleteCategory(categoryId: string) {
+export async function updateCategoryStyle(categoryId: string, icon: string, color: string) {
   const supabase = await createClient();
-  const { error } = await supabase.from("expense_categories").delete().eq("id", categoryId);
+  const { error } = await supabase
+    .from("expense_categories")
+    .update({ icon, color })
+    .eq("id", categoryId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/settings");
+}
+
+export async function archiveCategory(categoryId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("expense_categories")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("id", categoryId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/settings");
+}
+
+export async function restoreCategory(categoryId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("expense_categories")
+    .update({ archived_at: null })
+    .eq("id", categoryId);
   if (error) throw new Error(error.message);
   revalidatePath("/settings");
 }
