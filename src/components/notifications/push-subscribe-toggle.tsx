@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Bell, BellOff } from "lucide-react";
 import { savePushSubscription, deletePushSubscription } from "@/app/(app)/settings/push-actions";
 import { Switch } from "@/components/ui/switch";

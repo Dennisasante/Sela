@@ -4,11 +4,13 @@ import { AddExpenseForm } from "@/components/add/add-expense-form";
 export default async function AddExpensePage() {
   const supabase = await createClient();
 
-  const [{ data: accounts }, { data: categories }, { data: events }] = await Promise.all([
-    supabase.from("accounts").select("*").eq("is_active", true).order("name"),
-    supabase.from("expense_categories").select("*").order("name"),
-    supabase.from("events").select("*").eq("status", "active").order("name"),
-  ]);
+  const [{ data: accounts }, { data: categories }, { data: events }, { data: projects }] =
+    await Promise.all([
+      supabase.from("accounts").select("*").eq("is_active", true).order("name"),
+      supabase.from("expense_categories").select("*").order("name"),
+      supabase.from("events").select("*").eq("status", "active").order("name"),
+      supabase.from("projects").select("*").eq("status", "active").order("title"),
+    ]);
 
   return (
     <div className="space-y-4">
@@ -17,6 +19,7 @@ export default async function AddExpensePage() {
         accounts={accounts ?? []}
         categories={categories ?? []}
         events={events ?? []}
+        projects={projects ?? []}
       />
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type ReactElement } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { createSavingsRule } from "@/app/(app)/savings/actions";
 import { withDataSlot } from "@/lib/utils";
 import type { IncomeSource } from "@/lib/supabase/types";
@@ -52,7 +53,7 @@ export function SavingsRuleFormDialog({
         toast.success("Savings rule created");
         setOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

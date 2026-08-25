@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveAlerts } from "@/lib/data/notifications";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, AlertOctagon } from "lucide-react";
+import { AlertTriangle, AlertOctagon, Info } from "lucide-react";
 import Link from "next/link";
 
 export default async function NotificationsPage() {
@@ -32,8 +32,10 @@ export default async function NotificationsPage() {
                 >
                   {alert.severity === "danger" ? (
                     <AlertOctagon className="size-4 text-destructive" />
-                  ) : (
+                  ) : alert.severity === "warning" ? (
                     <AlertTriangle className="size-4 text-info" />
+                  ) : (
+                    <Info className="size-4 text-info" />
                   )}
                 </div>
                 <div>

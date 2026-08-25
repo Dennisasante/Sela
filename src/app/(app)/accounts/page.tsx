@@ -75,7 +75,7 @@ export default async function AccountsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold">
+                  <p className={`font-semibold ${account.balance < 0 ? "text-destructive" : ""}`}>
                     {formatMoney(account.balance, account.currency)}
                   </p>
                   {fullAccount && <AccountActions account={fullAccount} />}

@@ -5,7 +5,7 @@ import { SavingsRuleCard } from "@/components/savings/savings-rule-card";
 import { SavingsGoalFormDialog } from "@/components/savings/savings-goal-form-dialog";
 import { SavingsGoalCard } from "@/components/savings/savings-goal-card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, PiggyBank } from "lucide-react";
 
 export default async function SavingsPage() {
   const supabase = await createClient();
@@ -60,13 +60,28 @@ export default async function SavingsPage() {
           />
         </div>
         {goals.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            No goals yet — track progress toward an investment or savings account.
-          </p>
+          <div className="flex flex-col items-center gap-2 py-6 text-center">
+            <div className="flex size-11 items-center justify-center rounded-full bg-muted">
+              <PiggyBank className="size-5 text-muted-foreground" />
+            </div>
+            <p className="text-sm font-medium">Start building something</p>
+            <p className="max-w-[24rem] text-xs text-muted-foreground">
+              Create your first savings goal and let Sela keep you on track.
+            </p>
+            <SavingsGoalFormDialog
+              accounts={accounts ?? []}
+              trigger={
+                <Button size="sm" className="mt-1">
+                  <Plus className="size-4" />
+                  Create goal
+                </Button>
+              }
+            />
+          </div>
         )}
         <div className="space-y-3">
           {goals.map((goal) => (
-            <SavingsGoalCard key={goal.id} goal={goal} />
+            <SavingsGoalCard key={goal.id} goal={goal} accounts={accounts ?? []} />
           ))}
         </div>
       </section>

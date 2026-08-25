@@ -10,16 +10,21 @@
 export type AccountType = "mobile_money" | "bank" | "cash" | "investment" | "other";
 export type IncomeCategory = "stable" | "gig" | "product";
 export type ProjectStatus = "active" | "completed" | "cancelled";
-export type BillRecurrence = "monthly" | "yearly";
-export type BillStatus = "pending" | "paid" | "overdue";
+export type BillRecurrence = "weekly" | "monthly" | "quarterly" | "yearly";
+export type BillStatus = "pending" | "paid" | "overdue" | "partially_paid";
 export type LoanDirection = "borrowed" | "lent";
 export type LoanStatus = "outstanding" | "repaid" | "partially_repaid";
+export type LoanTransactionType = "disbursement" | "repayment";
 export type EventStatus = "active" | "closed";
 export type SavingsBaseType = "all_income" | "stable_only" | "gig_only" | "custom";
 export type SavingsPeriod = "monthly";
-export type GoalTargetType = "percentage_of_income" | "fixed_amount";
+export type GoalPriority = "low" | "medium" | "high";
+export type GoalStatus = "active" | "paused" | "cancelled";
 export type AlertMetric = "total_spend" | "category_spend" | "total_income";
 export type AlertDirection = "above" | "below";
+export type RecurringIncomeStatus = "active" | "paused" | "cancelled";
+export type IncomeOccurrenceStatus = "expected" | "partial" | "received" | "skipped" | "missed";
+export type MilestoneStatus = "pending" | "paid";
 
 type BaseRow = {
   id: string;
@@ -53,16 +58,51 @@ export type IncomeSource = BaseRow & {
   category: IncomeCategory;
   is_recurring: boolean;
   notes: string | null;
+  phone: string | null;
+  email: string | null;
+  company: string | null;
+};
+
+export type RecurringIncome = BaseRow & {
+  source_id: string;
+  expected_amount: number;
+  currency: string;
+  expected_day_of_month: number;
+  default_account_id: string | null;
+  start_date: string;
+  status: RecurringIncomeStatus;
+};
+
+export type IncomeOccurrence = BaseRow & {
+  recurring_income_id: string;
+  expected_date: string;
+  expected_amount: number;
+  currency: string;
+  status: IncomeOccurrenceStatus;
+  income_entry_id: string | null;
+  received_amount: number | null;
+  received_date: string | null;
 };
 
 export type Project = BaseRow & {
   source_id: string | null;
   title: string;
+  description: string | null;
   total_amount: number;
   currency: string;
   status: ProjectStatus;
   started_at: string | null;
   due_at: string | null;
+};
+
+export type ProjectMilestone = BaseRow & {
+  project_id: string;
+  label: string;
+  amount: number;
+  currency: string;
+  due_date: string | null;
+  status: MilestoneStatus;
+  income_entry_id: string | null;
 };
 
 export type Event = BaseRow & {
@@ -89,6 +129,16 @@ export type Loan = BaseRow & {
   notes: string | null;
 };
 
+export type LoanTransaction = BaseRow & {
+  loan_id: string;
+  account_id: string;
+  type: LoanTransactionType;
+  amount: number;
+  currency: string;
+  date: string;
+  notes: string | null;
+};
+
 export type Bill = BaseRow & {
   payee: string;
   amount: number;
@@ -99,6 +149,9 @@ export type Bill = BaseRow & {
   status: BillStatus;
   category_id: string | null;
   default_account_id: string | null;
+  provider: string | null;
+  is_subscription: boolean;
+  is_active: boolean;
 };
 
 export type IncomeEntry = BaseRow & {
@@ -136,6 +189,7 @@ export type Expense = BaseRow & {
   event_id: string | null;
   bill_id: string | null;
   loan_id: string | null;
+  project_id: string | null;
 };
 
 export type Transfer = BaseRow & {
@@ -145,6 +199,7 @@ export type Transfer = BaseRow & {
   currency: string;
   date: string;
   description: string | null;
+  goal_id: string | null;
 };
 
 export type SavingsRule = BaseRow & {
@@ -159,9 +214,11 @@ export type SavingsRule = BaseRow & {
 export type SavingsGoal = BaseRow & {
   name: string;
   target_account_id: string | null;
-  target_type: GoalTargetType;
-  target_value: number;
-  period: SavingsPeriod;
+  target_amount: number;
+  target_date: string | null;
+  priority: GoalPriority;
+  category: string | null;
+  status: GoalStatus;
   notes: string | null;
 };
 
@@ -216,13 +273,29 @@ export type Database = {
     Tables: {
       accounts: TableDef<Account, WithOptionalOwnerFields<Account>>;
       income_sources: TableDef<IncomeSource, WithOptionalOwnerFields<IncomeSource>>;
+      recurring_income: TableDef<
+        RecurringIncome,
+        WithOptionalOwnerFields<RecurringIncome>
+      >;
+      income_occurrences: TableDef<
+        IncomeOccurrence,
+        WithOptionalOwnerFields<IncomeOccurrence>
+      >;
       projects: TableDef<Project, WithOptionalOwnerFields<Project>>;
+      project_milestones: TableDef<
+        ProjectMilestone,
+        WithOptionalOwnerFields<ProjectMilestone>
+      >;
       events: TableDef<Event, WithOptionalOwnerFields<Event>>;
       expense_categories: TableDef<
         ExpenseCategory,
         WithOptionalOwnerFields<ExpenseCategory>
       >;
       loans: TableDef<Loan, WithOptionalOwnerFields<Loan>>;
+      loan_transactions: TableDef<
+        LoanTransaction,
+        WithOptionalOwnerFields<LoanTransaction>
+      >;
       bills: TableDef<Bill, WithOptionalOwnerFields<Bill>>;
       income_entries: TableDef<IncomeEntry, WithOptionalOwnerFields<IncomeEntry>>;
       product_sales: TableDef<ProductSale, WithOptionalOwnerFields<ProductSale>>;

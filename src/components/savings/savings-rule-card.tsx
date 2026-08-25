@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { deleteSavingsRule, logSetAsideTransfer } from "@/app/(app)/savings/actions";
-import { formatMoney, toISODate } from "@/lib/format";
+import { formatMoney, formatDate, toISODate } from "@/lib/format";
 import { withDataSlot } from "@/lib/utils";
 import type { SavingsRuleProgress } from "@/lib/data/savings";
 import type { Account } from "@/lib/supabase/types";
@@ -56,7 +57,7 @@ export function SavingsRuleCard({
         await deleteSavingsRule(rule.id);
         toast.success("Rule removed");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -71,7 +72,7 @@ export function SavingsRuleCard({
         toast.success("Logged as a transfer");
         setTransferOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -114,6 +115,25 @@ export function SavingsRuleCard({
               Log as transfer
             </Button>
           </div>
+
+          {rule.contributions.length > 0 && (
+            <details className="text-xs text-muted-foreground">
+              <summary className="cursor-pointer select-none">
+                What makes up this {formatMoney(rule.baseAmount, rule.currency)}? (
+                {rule.contributions.length})
+              </summary>
+              <div className="mt-1.5 space-y-1 pl-1">
+                {rule.contributions.map((c) => (
+                  <div key={c.id} className="flex justify-between gap-2">
+                    <span className="truncate">
+                      {formatDate(c.date)} · {c.sourceName}
+                    </span>
+                    <span className="shrink-0">{formatMoney(c.amount, rule.currency)}</span>
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
         </CardContent>
       </Card>
 

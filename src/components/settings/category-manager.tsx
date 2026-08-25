@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition, useRef } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { X, Plus } from "lucide-react";
 import { createCategory, deleteCategory } from "@/app/(app)/settings/actions";
 import type { ExpenseCategory } from "@/lib/supabase/types";
@@ -22,7 +23,7 @@ export function CategoryManager({ categories }: { categories: ExpenseCategory[] 
         await createCategory(formData);
         formRef.current?.reset();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -32,7 +33,7 @@ export function CategoryManager({ categories }: { categories: ExpenseCategory[] 
       try {
         await deleteCategory(id);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { setAccountActive } from "@/app/(app)/accounts/actions";
 import type { Account } from "@/lib/supabase/types";
@@ -24,7 +25,7 @@ export function AccountActions({ account }: { account: Account }) {
       try {
         await setAccountActive(account.id, !account.is_active);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

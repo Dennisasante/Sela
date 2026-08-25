@@ -73,9 +73,11 @@ export async function addExpense(formData: FormData) {
     payee: (formData.get("payee") as string) || null,
     is_gift: formData.get("is_gift") === "on",
     event_id: optionalId(formData, "event_id"),
+    project_id: optionalId(formData, "project_id"),
   });
 
   if (error) throw new Error(error.message);
   revalidatePath("/expenses");
+  revalidatePath("/income");
   revalidatePath("/");
 }

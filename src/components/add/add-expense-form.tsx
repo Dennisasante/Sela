@@ -2,9 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { addExpense } from "@/app/(app)/add/actions";
-import type { Account, Event, ExpenseCategory } from "@/lib/supabase/types";
+import type { Account, Event, ExpenseCategory, Project } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,10 +23,12 @@ export function AddExpenseForm({
   accounts,
   categories,
   events,
+  projects,
 }: {
   accounts: Account[];
   categories: ExpenseCategory[];
   events: Event[];
+  projects: Project[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -41,7 +44,7 @@ export function AddExpenseForm({
         toast.success("Expense logged");
         router.push("/expenses");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -151,6 +154,30 @@ export function AddExpenseForm({
                   {events.map((ev) => (
                     <SelectItem key={ev.id} value={ev.id}>
                       {ev.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {projects.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="project_id">Project (business expense)</Label>
+              <Select name="project_id" defaultValue="none">
+                <SelectTrigger id="project_id" className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      value === "none"
+                        ? "None"
+                        : (projects.find((p) => p.id === value)?.title ?? value)
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.title}
                     </SelectItem>
                   ))}
                 </SelectContent>

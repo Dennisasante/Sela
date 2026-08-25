@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition, type ReactElement } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { createLoan } from "@/app/(app)/expenses/actions";
 import { withDataSlot } from "@/lib/utils";
 import { toISODate } from "@/lib/format";
+import type { Account } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +25,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function LoanFormDialog({ trigger }: { trigger: ReactElement }) {
+export function LoanFormDialog({
+  trigger,
+  accounts,
+}: {
+  trigger: ReactElement;
+  accounts: Account[];
+}) {
   const [open, setOpen] = useState(false);
+  const [direction, setDirection] = useState("borrowed");
   const [pending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -37,7 +46,7 @@ export function LoanFormDialog({ trigger }: { trigger: ReactElement }) {
         toast.success("Loan logged");
         setOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -52,7 +61,12 @@ export function LoanFormDialog({ trigger }: { trigger: ReactElement }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="direction">Direction</Label>
-            <Select name="direction" defaultValue="borrowed" required>
+            <Select
+              name="direction"
+              value={direction}
+              onValueChange={(value) => value && setDirection(value)}
+              required
+            >
               <SelectTrigger id="direction" className="w-full">
                 <SelectValue>
                   {(value: string | null) =>
@@ -73,6 +87,27 @@ export function LoanFormDialog({ trigger }: { trigger: ReactElement }) {
           <div className="space-y-2">
             <Label htmlFor="amount">Amount</Label>
             <Input id="amount" name="amount" type="number" step="0.01" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="loan_account">
+              {direction === "borrowed" ? "Received into" : "Paid from"}
+            </Label>
+            <Select name="account_id" required>
+              <SelectTrigger id="loan_account" className="w-full">
+                <SelectValue>
+                  {(value: string | null) =>
+                    value ? (accounts.find((a) => a.id === value)?.name ?? value) : "Select account"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>

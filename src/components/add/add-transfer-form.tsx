@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { createTransfer } from "@/app/(app)/accounts/actions";
 import type { Account } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export function AddTransferForm({ accounts }: { accounts: Account[] }) {
         toast.success("Transfer logged");
         router.push("/accounts");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

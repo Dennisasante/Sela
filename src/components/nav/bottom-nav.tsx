@@ -10,7 +10,19 @@ import {
   Wallet,
   PieChart,
   Plus,
-  Menu,
+  Menu as MenuIcon,
+  Users,
+  Briefcase,
+  Repeat,
+  PiggyBank,
+  BarChart3,
+  HeartPulse,
+  CalendarDays,
+  User,
+  Settings as SettingsIcon,
+  Bell,
+  BookOpen,
+  HelpCircle,
 } from "lucide-react";
 import {
   Sheet,
@@ -31,21 +43,54 @@ const rightItems = [
   { href: "/accounts", label: "Accounts", icon: Wallet },
 ];
 
-const moreItems = [
-  { href: "/savings", label: "Savings & Tax" },
-  { href: "/reports", label: "Reports" },
-  { href: "/settings", label: "Settings" },
-  { href: "/profile", label: "Profile" },
-  { href: "/guide", label: "User guide" },
+const menuGroups = [
+  {
+    label: "Manage",
+    items: [
+      { href: "/income?tab=clients", label: "Clients", icon: Users },
+      { href: "/income?tab=projects", label: "Projects", icon: Briefcase },
+      { href: "/subscriptions", label: "Subscriptions", icon: Repeat },
+      { href: "/savings", label: "Goals & Savings", icon: PiggyBank },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { href: "/reports", label: "Reports", icon: BarChart3 },
+      { href: "/financial-health", label: "Financial health", icon: HeartPulse },
+      { href: "/calendar", label: "Financial calendar", icon: CalendarDays },
+    ],
+  },
+  {
+    label: "Personal",
+    items: [
+      { href: "/profile", label: "Profile", icon: User },
+      { href: "/settings", label: "Settings", icon: SettingsIcon },
+      { href: "/notifications", label: "Notifications", icon: Bell },
+    ],
+  },
+  {
+    label: "Help",
+    items: [
+      { href: "/guide", label: "User guide", icon: BookOpen },
+      { href: "/help", label: "Help & support", icon: HelpCircle },
+    ],
+  },
 ];
+
+const moreItems = menuGroups.flatMap((g) => g.items);
+
+function hrefPath(href: string) {
+  return href.split("?")[0];
+}
 
 export function BottomNav() {
   const pathname = usePathname();
-  const moreActive = moreItems.some((item) => pathname === item.href);
+  const moreActive = moreItems.some((item) => hrefPath(item.href) === pathname);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-border/70 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
-      <div className="relative mx-auto flex max-w-2xl items-stretch justify-between px-1">
+    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-backdrop-filter:bg-background/80">
+      <div className="relative mx-auto flex max-w-2xl items-stretch justify-between gap-1 px-1">
         {leftItems.map((item) => (
           <NavLink key={item.href} item={item} active={pathname === item.href} />
         ))}
@@ -68,8 +113,8 @@ export function BottomNav() {
           <SheetTrigger
             render={
               <button
-                className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
-                aria-label="More"
+                className="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 py-2"
+                aria-label="Menu"
               >
                 <span
                   className={cn(
@@ -77,37 +122,45 @@ export function BottomNav() {
                     moreActive ? "bg-primary/10 text-primary" : "text-muted-foreground"
                   )}
                 >
-                  <Menu className="size-5" />
+                  <MenuIcon className="size-5" />
                 </span>
                 <span
                   className={cn(
-                    "text-[11px] leading-none",
+                    "max-w-full truncate text-[10px] leading-none",
                     moreActive ? "font-medium text-primary" : "text-muted-foreground"
                   )}
                 >
-                  More
+                  Menu
                 </span>
               </button>
             }
           />
-          <SheetContent side="bottom">
+          <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>More</SheetTitle>
+              <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <div className="flex flex-col gap-1 px-4 pb-6">
-              {moreItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "rounded-md px-3 py-3 text-sm font-medium",
-                    pathname === item.href
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-muted/60"
-                  )}
-                >
-                  {item.label}
-                </Link>
+            <div className="flex flex-col gap-4 px-4 pb-6">
+              {menuGroups.map((group) => (
+                <div key={group.label} className="space-y-1">
+                  <p className="px-3 text-xs font-medium text-muted-foreground">{group.label}</p>
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = hrefPath(item.href) === pathname;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium",
+                          active ? "bg-primary/10 text-primary" : "hover:bg-muted/60"
+                        )}
+                      >
+                        <Icon className="size-4" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               ))}
             </div>
           </SheetContent>
@@ -128,7 +181,7 @@ function NavLink({
   return (
     <Link
       href={item.href}
-      className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2"
+      className="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 py-2"
     >
       <span
         className={cn(
@@ -140,7 +193,7 @@ function NavLink({
       </span>
       <span
         className={cn(
-          "text-[11px] leading-none",
+          "max-w-full truncate text-[10px] leading-none",
           active ? "font-medium text-primary" : "text-muted-foreground"
         )}
       >

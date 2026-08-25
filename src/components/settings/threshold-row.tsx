@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { X } from "lucide-react";
 import { deleteThreshold } from "@/app/(app)/settings/actions";
 import type { AlertThreshold } from "@/lib/supabase/types";
@@ -27,7 +28,7 @@ export function ThresholdRow({
       try {
         await deleteThreshold(threshold.id);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

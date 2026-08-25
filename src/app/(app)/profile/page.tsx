@@ -1,13 +1,20 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "@/app/(auth)/actions";
+import { signOut, resendConfirmation } from "@/app/(auth)/actions";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronRight, HelpCircle, Settings, LogOut } from "lucide-react";
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string; error?: string }>;
+}) {
+  const { message, error } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -15,6 +22,7 @@ export default async function ProfilePage() {
 
   const email = user?.email ?? "";
   const initial = email.charAt(0).toUpperCase() || "?";
+  const emailVerified = !!user?.email_confirmed_at;
   const memberSince = user?.created_at
     ? new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
         new Date(user.created_at)
@@ -25,6 +33,17 @@ export default async function ProfilePage() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold">Profile</h1>
 
+      {message && (
+        <Alert>
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      )}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <Card className="overflow-hidden border-none bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
         <CardContent className="flex items-center gap-4 py-5">
           <Avatar className="size-14 ring-2 ring-white/30">
@@ -33,13 +52,36 @@ export default async function ProfilePage() {
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-semibold">{email}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold">{email}</p>
+              <Badge variant={emailVerified ? "success" : "secondary"} className="shrink-0">
+                {emailVerified ? "Verified" : "Unverified"}
+              </Badge>
+            </div>
             {memberSince && (
               <p className="text-sm text-primary-foreground/80">Member since {memberSince}</p>
             )}
           </div>
         </CardContent>
       </Card>
+
+      {!emailVerified && (
+        <Card>
+          <CardContent className="space-y-2 py-4">
+            <p className="text-sm font-medium">Your email isn&apos;t verified yet</p>
+            <p className="text-xs text-muted-foreground">
+              Verifying your email keeps your account recoverable if you ever lose access.
+            </p>
+            <form action={resendConfirmation}>
+              <input type="hidden" name="email" value={email} />
+              <input type="hidden" name="redirect_to" value="/profile" />
+              <Button type="submit" size="sm" variant="outline" className="w-full">
+                Resend confirmation email
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="divide-y py-0">
@@ -60,6 +102,16 @@ export default async function ProfilePage() {
             <span className="flex items-center gap-2 text-sm">
               <HelpCircle className="size-4 text-muted-foreground" />
               User guide
+            </span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </Link>
+          <Link
+            href="/help"
+            className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0"
+          >
+            <span className="flex items-center gap-2 text-sm">
+              <HelpCircle className="size-4 text-muted-foreground" />
+              Help &amp; support
             </span>
             <ChevronRight className="size-4 text-muted-foreground" />
           </Link>

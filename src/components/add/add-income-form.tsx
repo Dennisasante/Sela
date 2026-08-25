@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { addIncome } from "@/app/(app)/add/actions";
 import type { Account, IncomeSource, Project } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export function AddIncomeForm({
         toast.success("Income logged");
         router.push("/income");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

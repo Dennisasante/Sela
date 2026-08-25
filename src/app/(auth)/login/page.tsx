@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { signIn } from "@/app/(auth)/actions";
+import { signIn, resendConfirmation } from "@/app/(auth)/actions";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; pending_email?: string }>;
 }) {
-  const { error, message } = await searchParams;
+  const { error, message, pending_email: pendingEmail } = await searchParams;
 
   return (
     <div className="space-y-6">
@@ -46,6 +46,14 @@ export default async function LoginPage({
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
+          )}
+          {pendingEmail && (
+            <form action={resendConfirmation}>
+              <input type="hidden" name="email" value={pendingEmail} />
+              <Button type="submit" variant="outline" size="sm" className="w-full">
+                Resend confirmation email
+              </Button>
+            </form>
           )}
           <form action={signIn} className="space-y-4">
             <div className="space-y-2">

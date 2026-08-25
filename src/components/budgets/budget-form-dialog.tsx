@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type ReactElement } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { upsertBudget } from "@/app/(app)/budgets/actions";
 import { withDataSlot } from "@/lib/utils";
 import type { ExpenseCategory } from "@/lib/supabase/types";
@@ -55,7 +56,7 @@ export function BudgetFormDialog({
         toast.success("Budget saved");
         setOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

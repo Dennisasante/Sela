@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type ReactElement } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { createAccount, updateAccount } from "@/app/(app)/accounts/actions";
 import type { Account } from "@/lib/supabase/types";
 import { withDataSlot } from "@/lib/utils";
@@ -61,7 +62,7 @@ export function AccountFormDialog({
         toast.success(account ? "Account updated" : "Account created");
         setOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

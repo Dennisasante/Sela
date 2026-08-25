@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { deleteExpense } from "@/app/(app)/expenses/actions";
 import { formatMoney, formatDate } from "@/lib/format";
@@ -26,7 +27,7 @@ export function ExpenseRow({ expense }: { expense: Row }) {
         await deleteExpense(expense.id);
         toast.success("Expense deleted");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

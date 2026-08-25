@@ -23,7 +23,7 @@ export default async function BudgetsPage() {
 
   const totalLimit = budgets.reduce((sum, b) => sum + b.monthlyLimit, 0);
   const totalSpent = budgets.reduce((sum, b) => sum + b.spent, 0);
-  const overallPct = totalLimit > 0 ? Math.min(100, (totalSpent / totalLimit) * 100) : 0;
+  const overallPct = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
   const currency = budgets[0]?.currency ?? "GHS";
 
   return (
@@ -55,7 +55,7 @@ export default async function BudgetsPage() {
                 {formatMoney(totalSpent, currency)} spent this month
               </p>
             </div>
-            <CircularProgress value={overallPct} size={84}>
+            <CircularProgress value={Math.min(100, overallPct)} size={84}>
               <span className="text-lg font-semibold">{Math.round(overallPct)}%</span>
               <span className="text-[10px] text-primary-foreground/80">spent</span>
             </CircularProgress>

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, ProjectMilestone } from "@/lib/supabase/types";
 
 export type IncomeEntryRow = {
   id: string;
@@ -105,18 +105,22 @@ export async function getClientTotals(
 export type ProjectBalance = {
   id: string;
   title: string;
+  description: string | null;
   status: string;
   totalAmount: number;
   paidToDate: number;
+  projectExpenses: number;
+  netReceived: number;
   currency: string;
 };
 
 export async function getProjectBalances(
   supabase: SupabaseClient<Database>
 ): Promise<ProjectBalance[]> {
-  const [{ data: projects }, { data: entries }] = await Promise.all([
+  const [{ data: projects }, { data: entries }, { data: expenses }] = await Promise.all([
     supabase.from("projects").select("*").order("created_at", { ascending: false }),
     supabase.from("income_entries").select("amount, project_id").not("project_id", "is", null),
+    supabase.from("expenses").select("amount, project_id").not("project_id", "is", null),
   ]);
 
   const paidByProject = new Map<string, number>();
@@ -125,12 +129,121 @@ export async function getProjectBalances(
     paidByProject.set(row.project_id, (paidByProject.get(row.project_id) ?? 0) + row.amount);
   }
 
-  return (projects ?? []).map((p) => ({
-    id: p.id,
-    title: p.title,
-    status: p.status,
-    totalAmount: p.total_amount,
-    paidToDate: paidByProject.get(p.id) ?? 0,
-    currency: p.currency,
-  }));
+  const expensesByProject = new Map<string, number>();
+  for (const row of expenses ?? []) {
+    if (!row.project_id) continue;
+    expensesByProject.set(row.project_id, (expensesByProject.get(row.project_id) ?? 0) + row.amount);
+  }
+
+  return (projects ?? []).map((p) => {
+    const paidToDate = paidByProject.get(p.id) ?? 0;
+    const projectExpenses = expensesByProject.get(p.id) ?? 0;
+    return {
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      status: p.status,
+      totalAmount: p.total_amount,
+      paidToDate,
+      projectExpenses,
+      netReceived: paidToDate - projectExpenses,
+      currency: p.currency,
+    };
+  });
+}
+
+export type ClientOverview = {
+  sourceId: string;
+  name: string;
+  category: string;
+  company: string | null;
+  phone: string | null;
+  email: string | null;
+  projectCount: number;
+  totalBilled: number;
+  totalReceivedOnProjects: number;
+  outstanding: number;
+  lifetimeReceived: number;
+  lastPaymentDate: string | null;
+  currency: string;
+};
+
+export async function getClientOverviews(
+  supabase: SupabaseClient<Database>
+): Promise<ClientOverview[]> {
+  const [{ data: sources }, { data: projects }, { data: entries }] = await Promise.all([
+    supabase.from("income_sources").select("*").order("name"),
+    supabase.from("projects").select("id, source_id, total_amount"),
+    supabase
+      .from("income_entries")
+      .select("amount, currency, date, source_id, project_id")
+      .not("source_id", "is", null),
+  ]);
+
+  const projectsBySource = new Map<string, { id: string; total_amount: number }[]>();
+  for (const p of projects ?? []) {
+    if (!p.source_id) continue;
+    const list = projectsBySource.get(p.source_id) ?? [];
+    list.push({ id: p.id, total_amount: p.total_amount });
+    projectsBySource.set(p.source_id, list);
+  }
+
+  const receivedByProject = new Map<string, number>();
+  const lifetimeBySource = new Map<string, number>();
+  const lastPaymentBySource = new Map<string, string>();
+  let anyCurrency = "GHS";
+
+  for (const e of entries ?? []) {
+    anyCurrency = e.currency;
+    if (e.project_id) {
+      receivedByProject.set(e.project_id, (receivedByProject.get(e.project_id) ?? 0) + e.amount);
+    }
+    if (e.source_id) {
+      lifetimeBySource.set(e.source_id, (lifetimeBySource.get(e.source_id) ?? 0) + e.amount);
+      const prevDate = lastPaymentBySource.get(e.source_id);
+      if (!prevDate || e.date > prevDate) lastPaymentBySource.set(e.source_id, e.date);
+    }
+  }
+
+  return (sources ?? []).map((s) => {
+    const sourceProjects = projectsBySource.get(s.id) ?? [];
+    const totalBilled = sourceProjects.reduce((sum, p) => sum + p.total_amount, 0);
+    const totalReceivedOnProjects = sourceProjects.reduce(
+      (sum, p) => sum + (receivedByProject.get(p.id) ?? 0),
+      0
+    );
+
+    return {
+      sourceId: s.id,
+      name: s.name,
+      category: s.category,
+      company: s.company,
+      phone: s.phone,
+      email: s.email,
+      projectCount: sourceProjects.length,
+      totalBilled,
+      totalReceivedOnProjects,
+      outstanding: totalBilled - totalReceivedOnProjects,
+      lifetimeReceived: lifetimeBySource.get(s.id) ?? 0,
+      lastPaymentDate: lastPaymentBySource.get(s.id) ?? null,
+      currency: anyCurrency,
+    };
+  });
+}
+
+export async function getMilestonesByProject(
+  supabase: SupabaseClient<Database>
+): Promise<Map<string, ProjectMilestone[]>> {
+  const { data } = await supabase
+    .from("project_milestones")
+    .select("*")
+    .order("due_date", { ascending: true, nullsFirst: false });
+
+  const byProject = new Map<string, ProjectMilestone[]>();
+  for (const m of data ?? []) {
+    const list = byProject.get(m.project_id) ?? [];
+    list.push(m);
+    byProject.set(m.project_id, list);
+  }
+  return byProject;
 }

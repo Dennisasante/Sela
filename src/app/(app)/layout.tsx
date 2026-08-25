@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-dvh flex-col bg-muted/20">
       <TopBar email={user.email ?? ""} />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-24 pt-4">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-4 pb-[calc(6rem+env(safe-area-inset-bottom))]">
         {children}
       </main>
       <BottomNav />

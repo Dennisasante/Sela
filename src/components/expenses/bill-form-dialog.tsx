@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type ReactElement } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { createBill } from "@/app/(app)/expenses/actions";
 import { withDataSlot } from "@/lib/utils";
 import { toISODate } from "@/lib/format";
@@ -48,7 +49,7 @@ export function BillFormDialog({
         toast.success("Bill added");
         setOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }

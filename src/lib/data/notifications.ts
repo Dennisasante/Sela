@@ -1,12 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
 import { currentMonthRange, toISODate } from "@/lib/format";
+import { getBudgetProgress } from "@/lib/data/budgets";
 
 export type AppAlert = {
   id: string;
   title: string;
   message: string;
-  severity: "warning" | "danger";
+  severity: "warning" | "danger" | "info";
   href: string;
 };
 
@@ -17,18 +18,39 @@ export async function getActiveAlerts(
   const today = toISODate(new Date());
   const soon = toISODate(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000));
 
-  const [{ data: thresholds }, { data: expenseRows }, { data: incomeRows }, { data: bills }] =
-    await Promise.all([
-      supabase.from("alert_thresholds").select("*").eq("is_active", true),
-      supabase.from("expenses").select("amount, category_id").gte("date", start).lte("date", end),
-      supabase.from("income_entries").select("amount").gte("date", start).lte("date", end),
-      supabase
-        .from("bills")
-        .select("*")
-        .neq("status", "paid")
-        .lte("due_date", soon)
-        .order("due_date"),
-    ]);
+  const [
+    { data: thresholds },
+    { data: expenseRows },
+    { data: incomeRows },
+    { data: bills },
+    budgets,
+    { data: milestones },
+    { data: occurrences },
+  ] = await Promise.all([
+    supabase.from("alert_thresholds").select("*").eq("is_active", true),
+    supabase.from("expenses").select("amount, category_id").gte("date", start).lte("date", end),
+    supabase.from("income_entries").select("amount").gte("date", start).lte("date", end),
+    supabase
+      .from("bills")
+      .select("*")
+      .neq("status", "paid")
+      .lte("due_date", soon)
+      .order("due_date"),
+    getBudgetProgress(supabase),
+    supabase
+      .from("project_milestones")
+      .select("*, projects(title)")
+      .eq("status", "pending")
+      .not("due_date", "is", null)
+      .lte("due_date", soon)
+      .order("due_date"),
+    supabase
+      .from("income_occurrences")
+      .select("*, recurring_income(income_sources(name))")
+      .eq("status", "expected")
+      .lte("expected_date", soon)
+      .order("expected_date"),
+  ]);
 
   const alerts: AppAlert[] = [];
 
@@ -69,6 +91,52 @@ export async function getActiveAlerts(
       message: `${bill.payee} — ${bill.amount} due ${bill.due_date}${overdue ? " (overdue)" : ""}.`,
       severity: overdue ? "danger" : "warning",
       href: "/expenses?tab=bills",
+    });
+  }
+
+  for (const budget of budgets) {
+    if (budget.status === "over_budget") {
+      alerts.push({
+        id: `budget-${budget.budgetId}`,
+        title: "Budget over limit",
+        message: `${budget.categoryName} budget is over — spent ${budget.spent.toFixed(2)} of ${budget.monthlyLimit.toFixed(2)}.`,
+        severity: "danger",
+        href: "/budgets",
+      });
+    } else if (budget.status === "near_limit") {
+      const pct = Math.round((budget.spent / budget.monthlyLimit) * 100);
+      alerts.push({
+        id: `budget-${budget.budgetId}`,
+        title: "Budget near limit",
+        message: `${budget.categoryName} budget is at ${pct}% (${budget.spent.toFixed(2)} of ${budget.monthlyLimit.toFixed(2)}).`,
+        severity: "warning",
+        href: "/budgets",
+      });
+    }
+  }
+
+  for (const milestone of milestones ?? []) {
+    const project = milestone.projects as unknown as { title?: string } | null;
+    const overdue = (milestone.due_date as string) < today;
+    alerts.push({
+      id: `milestone-${milestone.id}`,
+      title: overdue ? "Client payment overdue" : "Client payment due soon",
+      message: `${project?.title ?? "Project"}: ${milestone.label} — ${milestone.amount} due ${milestone.due_date}${overdue ? " (overdue)" : ""}.`,
+      severity: overdue ? "danger" : "warning",
+      href: "/income?tab=projects",
+    });
+  }
+
+  for (const occurrence of occurrences ?? []) {
+    const recurring = occurrence.recurring_income as unknown as {
+      income_sources: { name?: string } | null;
+    } | null;
+    alerts.push({
+      id: `expected-${occurrence.id}`,
+      title: "Income expected soon",
+      message: `${recurring?.income_sources?.name ?? "Income"} — ${occurrence.expected_amount} expected ${occurrence.expected_date}.`,
+      severity: "info",
+      href: "/income?tab=expected",
     });
   }
 

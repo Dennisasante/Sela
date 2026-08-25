@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getExpenses } from "@/lib/data/expenses";
+import { getExpenses, getBillsWithProgress } from "@/lib/data/expenses";
 import { monthRangeForOffset, formatMoney } from "@/lib/format";
 import { ExpenseFilters } from "@/components/expenses/expense-filters";
 import { ExpenseRow } from "@/components/expenses/expense-row";
@@ -12,37 +12,68 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
+const EXPENSE_TABS = ["expenses", "bills", "loans", "gifts"] as const;
+
 export default async function ExpensesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; category?: string; account?: string }>;
+  searchParams: Promise<{ month?: string; category?: string; account?: string; tab?: string }>;
 }) {
-  const { month, category, account } = await searchParams;
+  const { month, category, account, tab } = await searchParams;
   const monthOffset = month ? parseInt(month, 10) || 0 : 0;
   const { start, end, label } = monthRangeForOffset(monthOffset);
+  const activeTab = EXPENSE_TABS.includes(tab as (typeof EXPENSE_TABS)[number])
+    ? (tab as (typeof EXPENSE_TABS)[number])
+    : "expenses";
 
   const supabase = await createClient();
 
-  const [expenses, gifts, { data: categories }, { data: accounts }, { data: bills }, { data: loans }] =
-    await Promise.all([
-      getExpenses(supabase, { start, end, categoryId: category, accountId: account }),
-      getExpenses(supabase, { start, end, giftsOnly: true }),
-      supabase.from("expense_categories").select("*").order("name"),
-      supabase.from("accounts").select("*").eq("is_active", true).order("name"),
-      supabase.from("bills").select("*").order("due_date"),
-      supabase.from("loans").select("*").order("date", { ascending: false }),
-    ]);
+  const [
+    expenses,
+    gifts,
+    { data: categories },
+    { data: accounts },
+    billProgress,
+    { data: loans },
+    { data: loanTx },
+  ] = await Promise.all([
+    getExpenses(supabase, { start, end, categoryId: category, accountId: account }),
+    getExpenses(supabase, { start, end, giftsOnly: true }),
+    supabase.from("expense_categories").select("*").order("name"),
+    supabase.from("accounts").select("*").eq("is_active", true).order("name"),
+    getBillsWithProgress(supabase),
+    supabase.from("loans").select("*").order("date", { ascending: false }),
+    supabase.from("loan_transactions").select("loan_id, type, amount"),
+  ]);
+  const { bills, summary: payableSummary } = billProgress;
 
   const monthTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
   const currency = expenses[0]?.currency ?? "GHS";
   const allAccounts = accounts ?? [];
   const allCategories = categories ?? [];
 
+  const repaidByLoan = new Map<string, number>();
+  for (const tx of loanTx ?? []) {
+    if (tx.type !== "repayment") continue;
+    repaidByLoan.set(tx.loan_id, (repaidByLoan.get(tx.loan_id) ?? 0) + tx.amount);
+  }
+
+  const loansWithOutstanding = (loans ?? []).map((loan) => ({
+    loan,
+    outstanding: loan.amount - (repaidByLoan.get(loan.id) ?? 0),
+  }));
+  const totalOwedByMe = loansWithOutstanding
+    .filter((l) => l.loan.direction === "borrowed")
+    .reduce((sum, l) => sum + l.outstanding, 0);
+  const totalOwedToMe = loansWithOutstanding
+    .filter((l) => l.loan.direction === "lent")
+    .reduce((sum, l) => sum + l.outstanding, 0);
+
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Expenses</h1>
 
-      <Tabs defaultValue="expenses">
+      <Tabs key={activeTab} defaultValue={activeTab}>
         <TabsList className="w-full">
           <TabsTrigger value="expenses" className="flex-1">
             Expenses
@@ -88,6 +119,40 @@ export default async function ExpensesPage({
         </TabsContent>
 
         <TabsContent value="bills" className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Card>
+              <CardContent className="py-3 text-center">
+                <p className="text-xs text-muted-foreground">Total owed</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {formatMoney(payableSummary.totalOwed, currency)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-3 text-center">
+                <p className="text-xs text-muted-foreground">Overdue</p>
+                <p className="mt-1 text-lg font-semibold text-destructive">
+                  {formatMoney(payableSummary.overdue, currency)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-3 text-center">
+                <p className="text-xs text-muted-foreground">Due within 7 days</p>
+                <p className="mt-1 text-lg font-semibold text-info">
+                  {formatMoney(payableSummary.dueSoon, currency)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-3 text-center">
+                <p className="text-xs text-muted-foreground">Upcoming</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {formatMoney(payableSummary.upcoming, currency)}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
           <div className="flex justify-end">
             <BillFormDialog
               categories={allCategories}
@@ -100,17 +165,43 @@ export default async function ExpensesPage({
               }
             />
           </div>
-          {(bills ?? []).length === 0 && (
+          {bills.length === 0 && (
             <p className="text-sm text-muted-foreground">No bills tracked yet.</p>
           )}
-          {(bills ?? []).map((bill) => (
-            <BillCard key={bill.id} bill={bill} accounts={allAccounts} />
+          {bills.map(({ bill, outstanding, paidToDate, payments }) => (
+            <BillCard
+              key={bill.id}
+              bill={bill}
+              outstanding={outstanding}
+              paidToDate={paidToDate}
+              payments={payments}
+              accounts={allAccounts}
+            />
           ))}
         </TabsContent>
 
         <TabsContent value="loans" className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Card>
+              <CardContent className="py-3 text-center">
+                <p className="text-xs text-muted-foreground">You owe</p>
+                <p className="mt-1 text-lg font-semibold text-destructive">
+                  {formatMoney(totalOwedByMe, currency)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="py-3 text-center">
+                <p className="text-xs text-muted-foreground">Owed to you</p>
+                <p className="mt-1 text-lg font-semibold text-success">
+                  {formatMoney(totalOwedToMe, currency)}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
           <div className="flex justify-end">
             <LoanFormDialog
+              accounts={allAccounts}
               trigger={
                 <Button size="sm">
                   <Plus className="size-4" />
@@ -119,11 +210,11 @@ export default async function ExpensesPage({
               }
             />
           </div>
-          {(loans ?? []).length === 0 && (
+          {loansWithOutstanding.length === 0 && (
             <p className="text-sm text-muted-foreground">No loans tracked yet.</p>
           )}
-          {(loans ?? []).map((loan) => (
-            <LoanCard key={loan.id} loan={loan} accounts={allAccounts} />
+          {loansWithOutstanding.map(({ loan, outstanding }) => (
+            <LoanCard key={loan.id} loan={loan} outstanding={outstanding} accounts={allAccounts} />
           ))}
         </TabsContent>
 

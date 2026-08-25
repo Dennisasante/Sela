@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { logLoanRepayment, deleteLoan } from "@/app/(app)/expenses/actions";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
@@ -38,7 +39,15 @@ const STATUS_LABEL: Record<string, string> = {
   repaid: "Repaid",
 };
 
-export function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }) {
+export function LoanCard({
+  loan,
+  outstanding,
+  accounts,
+}: {
+  loan: Loan;
+  outstanding: number;
+  accounts: Account[];
+}) {
   const [pending, startTransition] = useTransition();
   const [repayOpen, setRepayOpen] = useState(false);
 
@@ -48,7 +57,7 @@ export function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }
         await deleteLoan(loan.id);
         toast.success("Loan removed");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -64,7 +73,7 @@ export function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }
         toast.success("Repayment logged");
         setRepayOpen(false);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(getErrorMessage(err));
       }
     });
   }
@@ -110,7 +119,14 @@ export function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-lg font-semibold">{formatMoney(loan.amount, loan.currency)}</p>
+            <div>
+              <p className="text-lg font-semibold">{formatMoney(loan.amount, loan.currency)}</p>
+              {loan.status !== "repaid" && (
+                <p className="text-xs text-muted-foreground">
+                  {formatMoney(outstanding, loan.currency)} outstanding
+                </p>
+              )}
+            </div>
             {loan.status !== "repaid" && (
               <Button size="sm" disabled={pending} onClick={() => setRepayOpen(true)}>
                 Log repayment
@@ -128,7 +144,15 @@ export function LoanCard({ loan, accounts }: { loan: Loan; accounts: Account[] }
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="repay_amount">Amount</Label>
-              <Input id="repay_amount" name="amount" type="number" step="0.01" required />
+              <Input
+                id="repay_amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                max={outstanding}
+                defaultValue={outstanding.toFixed(2)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="repay_account">
