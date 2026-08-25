@@ -26,6 +26,7 @@ import {
   HelpCircle,
   ClipboardList,
   BellRing,
+  Sparkles,
 } from "lucide-react";
 import {
   Sheet,
@@ -55,6 +56,7 @@ const menuGroups = [
       { href: "/income?tab=projects", label: "Projects", icon: Briefcase },
       { href: "/subscriptions", label: "Subscriptions", icon: Repeat },
       { href: "/savings", label: "Goals & Savings", icon: PiggyBank },
+      { href: "/wishlist", label: "Wishlist", icon: Sparkles },
     ],
   },
   {

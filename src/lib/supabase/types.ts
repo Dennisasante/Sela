@@ -241,6 +241,19 @@ export type Reminder = BaseRow & {
   last_fired_at: string | null;
 };
 
+export type WishlistPriority = "low" | "medium" | "high";
+export type WishlistStatus = "wanted" | "purchased" | "archived";
+
+export type WishlistItem = BaseRow & {
+  name: string;
+  estimated_price: number;
+  currency: string;
+  priority: WishlistPriority;
+  url: string | null;
+  notes: string | null;
+  status: WishlistStatus;
+};
+
 export type AlertThreshold = BaseRow & {
   metric: AlertMetric;
   category_id: string | null;
@@ -338,6 +351,7 @@ export type Database = {
         }
       >;
       reminders: TableDef<Reminder, WithOptionalOwnerFields<Reminder>>;
+      wishlist_items: TableDef<WishlistItem, WithOptionalOwnerFields<WishlistItem>>;
     };
     Views: {
       account_balances: {

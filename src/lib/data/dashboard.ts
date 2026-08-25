@@ -12,6 +12,24 @@ export type GuardianInsight = {
   href: string;
 };
 
+export async function getSafeToSpendSnapshot(supabase: SupabaseClient<Database>) {
+  const [{ data: balances }, payableSummary, savingsRules, { data: { user } }] = await Promise.all([
+    supabase.from("account_balances").select("*").eq("is_active", true),
+    getBillsWithProgress(supabase).then((r) => r.summary),
+    getSavingsRulesProgress(supabase),
+    supabase.auth.getUser(),
+  ]);
+
+  const availableNow = (balances ?? []).reduce((sum, a) => sum + a.balance, 0);
+  const committedToPay = payableSummary.totalOwed;
+  const plannedSavings = savingsRules.reduce((sum, r) => sum + r.setAsideAmount, 0);
+  const minimumReserve = Number(user?.user_metadata?.minimum_reserve ?? 0) || 0;
+  const safeToSpend = availableNow - committedToPay - plannedSavings - minimumReserve;
+  const currency = (balances ?? [])[0]?.currency ?? "GHS";
+
+  return { currency, availableNow, committedToPay, plannedSavings, minimumReserve, safeToSpend };
+}
+
 export async function getDashboardData(supabase: SupabaseClient<Database>) {
   const { start, end } = currentMonthRange();
   const { start: lastStart, end: lastEnd } = monthRangeForOffset(-1);
