@@ -17,6 +17,8 @@ import {
   ShieldCheck,
   UserCog,
   Lightbulb,
+  ClipboardList,
+  BellRing,
 } from "lucide-react";
 
 const sections = [
@@ -148,6 +150,13 @@ const sections = [
           status (on track, behind, completed) — a fixed monthly amount or a percentage
           of your income.
         </p>
+        <p>
+          <strong>Sinking funds</strong>, right below Goals on the same page, are for a
+          known future expense rather than an open-ended target — insurance renewal,
+          Christmas, school fees. Mark one as recurring and after you tap{" "}
+          <strong>Mark paid &amp; restart</strong>, it resets for the next cycle instead
+          of you having to recreate it.
+        </p>
       </>
     ),
   },
@@ -169,7 +178,10 @@ const sections = [
       <>
         <p>
           <strong>Reports</strong> shows your income/expense trend, spending by category,
-          and income by client, one month at a time.
+          and income by client. Pick a range — today, this week, this month, last 90
+          days, this year, or a custom span — the same picker used on Income and
+          Expenses. It defaults to the last 7 days, matching the weekly report push
+          notification.
         </p>
         <p>
           <strong>Financial health</strong> scores real factors from your own data —
@@ -177,6 +189,41 @@ const sections = [
           and always explains how each factor was calculated.
         </p>
       </>
+    ),
+  },
+  {
+    icon: ClipboardList,
+    title: "Commitments",
+    body: (
+      <p>
+        <strong>Menu → Commitments</strong> totals everything you&apos;re on the hook for
+        in one place — bills owed, subscription cost, loans you owe, savings rules, and
+        sinking funds — with a single &quot;this month&apos;s commitments&quot; figure at
+        the top. Tap any row to jump to that section.
+      </p>
+    ),
+  },
+  {
+    icon: Sparkles,
+    title: "Wishlist",
+    body: (
+      <p>
+        Add anything you want under <strong>Menu → Wishlist</strong> with an estimated
+        price. Each item shows whether you can afford it right now, based on your actual
+        safe-to-spend figure — balance minus committed bills, planned savings, and your
+        minimum reserve — not just your raw balance.
+      </p>
+    ),
+  },
+  {
+    icon: BellRing,
+    title: "Reminders",
+    body: (
+      <p>
+        <strong>Menu → Reminders</strong> is for anything you don&apos;t want to forget
+        that isn&apos;t tied to a bill or income — a renewal, a follow-up, a deadline. Set
+        a date, time, and repeat (daily, weekly, monthly, yearly), and Sela notifies you.
+      </p>
     ),
   },
   {
@@ -192,12 +239,19 @@ const sections = [
   },
   {
     icon: Search,
-    title: "Search",
+    title: "Search & quick actions",
     body: (
-      <p>
-        Use the search icon in the top bar to find a transaction, client, or category by
-        name or amount without digging through tabs.
-      </p>
+      <>
+        <p>
+          The search icon in the top bar finds a transaction, client, or category by
+          name or amount without digging through tabs.
+        </p>
+        <p>
+          The <strong>command</strong> icon next to it opens a searchable list of
+          shortcuts — &quot;add expense&quot;, &quot;new reminder&quot;, &quot;export
+          data&quot; — for jumping straight to an action instead of navigating there.
+        </p>
+      </>
     ),
   },
   {
@@ -242,12 +296,18 @@ const sections = [
       <>
         <p>
           Edit your display name from the <strong>Profile</strong> page — it&apos;s what
-          shows in the dashboard greeting. You can also change your password and see
-          whether your email is verified there.
+          shows in the dashboard greeting. Change your password or email, and see whether
+          your email is verified, under <strong>Settings → Security</strong>. Changing
+          your email sends a confirmation link to the new address first.
         </p>
         <p>
           Signing in with Google is supported wherever your Supabase project has it
           turned on.
+        </p>
+        <p>
+          <strong>Settings → Data export</strong> downloads your income, expenses, and
+          transfers as a CSV file for a range you pick — handy for backups or your own
+          spreadsheets.
         </p>
       </>
     ),
