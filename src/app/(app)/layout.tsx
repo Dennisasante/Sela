@@ -13,6 +13,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
+  if (!user.user_metadata?.onboarding_completed) {
+    const { count } = await supabase
+      .from("accounts")
+      .select("id", { count: "exact", head: true });
+    if (!count) redirect("/onboarding");
+  }
+
   return (
     <div className="flex min-h-dvh flex-col bg-muted/20">
       <TopBar email={user.email ?? ""} />
