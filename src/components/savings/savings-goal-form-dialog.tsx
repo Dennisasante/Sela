@@ -195,7 +195,13 @@ export function SavingsGoalFormDialog({
             </div>
           )}
           <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Saving…" : goal ? "Save changes" : "Create goal"}
+            {pending
+              ? "Saving…"
+              : goal
+                ? "Save changes"
+                : isSinkingFund
+                  ? "Create sinking fund"
+                  : "Create goal"}
           </Button>
         </form>
       </DialogContent>
