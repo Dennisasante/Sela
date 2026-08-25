@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminUser } from "@/lib/admin";
 import { BottomNav } from "@/components/nav/bottom-nav";
 import { TopBar } from "@/components/nav/top-bar";
 
@@ -11,6 +12,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) {
     redirect("/login");
+  }
+
+  // Admin accounts are a separate identity space with their own login and
+  // dashboard — they should never land in the consumer app shell.
+  if (await isAdminUser(supabase, user)) {
+    redirect("/admin");
   }
 
   if (!user.user_metadata?.onboarding_completed) {

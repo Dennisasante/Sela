@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/welcome", "/login", "/signup", "/auth/callback"];
+const PUBLIC_PATHS = ["/welcome", "/login", "/signup", "/auth/callback", "/admin/login"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -35,13 +35,20 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
+  const pathname = request.nextUrl.pathname;
+  const isAdminPath = pathname.startsWith("/admin");
+
   if (!user && !isPublicPath) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = request.nextUrl.pathname === "/" ? "/welcome" : "/login";
+    redirectUrl.pathname = isAdminPath ? "/admin/login" : pathname === "/" ? "/welcome" : "/login";
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && isPublicPath) {
+  // Admin paths decide their own redirect-when-signed-in behavior at the
+  // page/layout level (an admin account vs. a regular account visiting
+  // /admin/login need different outcomes) rather than the blanket "logged in
+  // + public path -> home" rule below.
+  if (user && isPublicPath && !isAdminPath) {
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = "/";
     return NextResponse.redirect(homeUrl);

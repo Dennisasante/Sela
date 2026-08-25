@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getErrorMessage } from "@/lib/errors";
+import { isAdminUser } from "@/lib/admin";
 
 async function getOrigin() {
   const h = await headers();
@@ -34,10 +35,15 @@ export async function signIn(formData: FormData) {
   const password = String(formData.get("password") ?? "");
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(getErrorMessage(error, "We couldn't sign you in. Please try again."))}`);
+  }
+
+  if (await isAdminUser(supabase, data.user)) {
+    await supabase.auth.signOut();
+    redirect("/admin/login?error=This is an admin account — sign in from the admin login instead.");
   }
 
   redirect("/");

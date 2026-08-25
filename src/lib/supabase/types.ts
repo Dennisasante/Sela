@@ -254,6 +254,11 @@ export type WishlistItem = BaseRow & {
   status: WishlistStatus;
 };
 
+export type AdminUser = {
+  user_id: string;
+  created_at: string;
+};
+
 export type AlertThreshold = BaseRow & {
   metric: AlertMetric;
   category_id: string | null;
@@ -352,6 +357,7 @@ export type Database = {
       >;
       reminders: TableDef<Reminder, WithOptionalOwnerFields<Reminder>>;
       wishlist_items: TableDef<WishlistItem, WithOptionalOwnerFields<WishlistItem>>;
+      admin_users: TableDef<AdminUser, AdminUser>;
     };
     Views: {
       account_balances: {
