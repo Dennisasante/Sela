@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { CommandSheet } from "@/components/nav/command-sheet";
 
 export function TopBar({ email }: { email: string }) {
   const initial = email.charAt(0).toUpperCase() || "?";
@@ -14,6 +15,7 @@ export function TopBar({ email }: { email: string }) {
           <Logo />
         </Link>
         <div className="flex items-center gap-1">
+          <CommandSheet />
           <Link
             href="/search"
             aria-label="Search"

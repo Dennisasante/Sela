@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     await sendPushToUser(supabase, userId, {
       title: "Your weekly Sela report",
       body: `Income ${formatMoney(totalIncome, currency)} · Expenses ${formatMoney(totalExpense, currency)} · Net ${formatMoney(net, currency)}`,
-      url: "/reports",
+      url: "/reports?range=last_7",
     });
     sent += 1;
   }

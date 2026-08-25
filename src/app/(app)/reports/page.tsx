@@ -4,8 +4,9 @@ import {
   getExpenseCategoryBreakdown,
   getIncomeBySourceBreakdown,
 } from "@/lib/data/reports";
-import { monthRangeForOffset, formatMoney } from "@/lib/format";
-import { MonthNav } from "@/components/reports/month-nav";
+import { formatMoney } from "@/lib/format";
+import { resolveDateRange } from "@/lib/date-range";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 import { TrendChart } from "@/components/reports/trend-chart";
 import { CategoryPieChart } from "@/components/reports/category-pie-chart";
 import { SourceBarChart } from "@/components/reports/source-bar-chart";
@@ -14,11 +15,11 @@ import { Card, CardContent } from "@/components/ui/card";
 export default async function ReportsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string }>;
+  searchParams: Promise<{ range?: string; from?: string; to?: string }>;
 }) {
-  const { month } = await searchParams;
-  const monthOffset = month ? parseInt(month, 10) || 0 : 0;
-  const { start, end, label } = monthRangeForOffset(monthOffset);
+  const { range, from, to } = await searchParams;
+  const activeRange = range ?? "last_7";
+  const { start, end, label } = resolveDateRange(activeRange, from, to);
 
   const supabase = await createClient();
 
@@ -35,7 +36,7 @@ export default async function ReportsPage({
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Reports</h1>
-      <MonthNav monthOffset={monthOffset} monthLabel={label} />
+      <DateRangeFilter range={activeRange} from={from} to={to} label={label} />
 
       <div className="grid grid-cols-2 gap-3">
         <Card>

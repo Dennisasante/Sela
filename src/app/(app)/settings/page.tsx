@@ -12,7 +12,17 @@ import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { ChangeEmailForm } from "@/components/settings/change-email-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronRight, HelpCircle, User } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
+import { toISODate } from "@/lib/format";
+import { Plus, ChevronRight, HelpCircle, User, Download } from "lucide-react";
+
+const EXPORT_RANGES = [
+  { label: "This month", days: 30 },
+  { label: "Last 90 days", days: 90 },
+  { label: "This year", days: 365 },
+  { label: "All time", days: null },
+];
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -128,6 +138,35 @@ export default async function SettingsPage() {
                 <ThresholdRow key={t.id} threshold={t} categoryName={category?.name} />
               );
             })}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium text-muted-foreground">Data export</h2>
+        <Card>
+          <CardContent className="space-y-2 py-4">
+            <p className="text-sm text-muted-foreground">
+              Download your income, expenses, and transfers as a CSV file.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {EXPORT_RANGES.map((r) => {
+                const to = toISODate(new Date());
+                const from = r.days
+                  ? toISODate(new Date(Date.now() - r.days * 24 * 60 * 60 * 1000))
+                  : "2000-01-01";
+                return (
+                  <a
+                    key={r.label}
+                    href={`/api/export/csv?from=${from}&to=${to}`}
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
+                  >
+                    <Download className="size-3.5" />
+                    {r.label}
+                  </a>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </section>
