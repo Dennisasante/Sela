@@ -32,14 +32,24 @@ const INCOME_TABS = ["entries", "expected", "clients", "projects"] as const;
 export default async function IncomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; source?: string; category?: string; tab?: string }>;
+  searchParams: Promise<{
+    month?: string;
+    source?: string;
+    category?: string;
+    tab?: string;
+    search?: string;
+    min?: string;
+    max?: string;
+  }>;
 }) {
-  const { month, source, category, tab } = await searchParams;
+  const { month, source, category, tab, search, min, max } = await searchParams;
   const monthOffset = month ? parseInt(month, 10) || 0 : 0;
   const { start, end, label } = monthRangeForOffset(monthOffset);
   const activeTab = INCOME_TABS.includes(tab as (typeof INCOME_TABS)[number])
     ? (tab as (typeof INCOME_TABS)[number])
     : "entries";
+  const minAmount = min ? Number(min) : undefined;
+  const maxAmount = max ? Number(max) : undefined;
 
   const supabase = await createClient();
   await ensureCurrentOccurrences(supabase);
@@ -54,7 +64,15 @@ export default async function IncomePage({
     expected,
     { data: accounts },
   ] = await Promise.all([
-    getIncomeEntries(supabase, { start, end, sourceId: source, category }),
+    getIncomeEntries(supabase, {
+      start,
+      end,
+      sourceId: source,
+      category,
+      search,
+      minAmount,
+      maxAmount,
+    }),
     getClientTotals(supabase, start, end),
     getClientOverviews(supabase),
     getProjectBalances(supabase),
@@ -100,6 +118,9 @@ export default async function IncomePage({
             monthLabel={label}
             sourceId={source}
             category={category}
+            search={search}
+            minAmount={min}
+            maxAmount={max}
           />
           <p className="text-sm text-muted-foreground">
             Total: <span className="font-semibold text-foreground">{formatMoney(monthTotal, currency)}</span>

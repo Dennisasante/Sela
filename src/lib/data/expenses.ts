@@ -22,6 +22,9 @@ export async function getExpenses(
     categoryId?: string;
     accountId?: string;
     giftsOnly?: boolean;
+    search?: string;
+    minAmount?: number;
+    maxAmount?: number;
   }
 ): Promise<ExpenseRow[]> {
   let query = supabase
@@ -37,6 +40,12 @@ export async function getExpenses(
   if (filters.accountId) query = query.eq("account_id", filters.accountId);
   if (filters.giftsOnly) query = query.eq("is_gift", true);
   else query = query.eq("is_gift", false);
+  if (filters.minAmount !== undefined) query = query.gte("amount", filters.minAmount);
+  if (filters.maxAmount !== undefined) query = query.lte("amount", filters.maxAmount);
+  if (filters.search) {
+    const term = filters.search.replace(/[%_]/g, "");
+    query = query.or(`description.ilike.%${term}%,payee.ilike.%${term}%`);
+  }
 
   const { data } = await query;
 

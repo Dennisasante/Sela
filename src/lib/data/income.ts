@@ -17,7 +17,15 @@ export type IncomeEntryRow = {
 
 export async function getIncomeEntries(
   supabase: SupabaseClient<Database>,
-  filters: { start: string; end: string; sourceId?: string; category?: string }
+  filters: {
+    start: string;
+    end: string;
+    sourceId?: string;
+    category?: string;
+    search?: string;
+    minAmount?: number;
+    maxAmount?: number;
+  }
 ): Promise<IncomeEntryRow[]> {
   let query = supabase
     .from("income_entries")
@@ -30,6 +38,12 @@ export async function getIncomeEntries(
 
   if (filters.sourceId) {
     query = query.eq("source_id", filters.sourceId);
+  }
+  if (filters.minAmount !== undefined) query = query.gte("amount", filters.minAmount);
+  if (filters.maxAmount !== undefined) query = query.lte("amount", filters.maxAmount);
+  if (filters.search) {
+    const term = filters.search.replace(/[%_]/g, "");
+    query = query.ilike("description", `%${term}%`);
   }
 
   const { data } = await query;

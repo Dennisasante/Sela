@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { EditNameForm } from "@/components/settings/edit-name-form";
+import { getFullDisplayName } from "@/lib/user";
 import { ChevronRight, HelpCircle, Settings, LogOut } from "lucide-react";
 
 export default async function ProfilePage({
@@ -21,7 +23,8 @@ export default async function ProfilePage({
   } = await supabase.auth.getUser();
 
   const email = user?.email ?? "";
-  const initial = email.charAt(0).toUpperCase() || "?";
+  const name = getFullDisplayName(user);
+  const initial = (name || email).charAt(0).toUpperCase() || "?";
   const emailVerified = !!user?.email_confirmed_at;
   const memberSince = user?.created_at
     ? new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(
@@ -44,23 +47,25 @@ export default async function ProfilePage({
         </Alert>
       )}
 
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+      <Card className="overflow-hidden border-none bg-gradient-to-br from-brand to-brand/80 text-brand-foreground">
         <CardContent className="flex items-center gap-4 py-5">
           <Avatar className="size-14 ring-2 ring-white/30">
-            <AvatarFallback className="bg-white/15 text-xl font-semibold text-primary-foreground">
+            <AvatarFallback className="bg-white/15 text-xl font-semibold text-brand-foreground">
               {initial}
             </AvatarFallback>
           </Avatar>
-          <div>
+          <div className="min-w-0 flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              <p className="font-semibold">{email}</p>
+              <p className="font-semibold">{name}</p>
               <Badge variant={emailVerified ? "success" : "secondary"} className="shrink-0">
                 {emailVerified ? "Verified" : "Unverified"}
               </Badge>
             </div>
+            <p className="text-sm text-brand-foreground/80">{email}</p>
             {memberSince && (
-              <p className="text-sm text-primary-foreground/80">Member since {memberSince}</p>
+              <p className="text-sm text-brand-foreground/80">Member since {memberSince}</p>
             )}
+            <EditNameForm name={name} />
           </div>
         </CardContent>
       </Card>

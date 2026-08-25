@@ -11,18 +11,13 @@ import { NeedsAttentionCard } from "@/components/dashboard/needs-attention-card"
 import { GuardianInsightCard } from "@/components/dashboard/guardian-insight-card";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getDisplayName } from "@/lib/user";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, ShieldCheck, Wallet } from "lucide-react";
 
 function greetingForHour(hour: number) {
   if (hour < 12) return "Good morning";
   if (hour < 18) return "Good afternoon";
   return "Good evening";
-}
-
-function nameFromEmail(email: string) {
-  const local = email.split("@")[0] ?? "";
-  const alpha = local.match(/^[a-zA-Z]+/)?.[0] ?? local;
-  return alpha ? alpha.charAt(0).toUpperCase() + alpha.slice(1) : "there";
 }
 
 export default async function DashboardPage() {
@@ -42,7 +37,7 @@ export default async function DashboardPage() {
     new Date()
   );
   const greeting = greetingForHour(new Date().getHours());
-  const name = nameFromEmail(user?.email ?? "");
+  const name = getDisplayName(user);
 
   const balanceUp = data.balanceChangeThisMonth >= 0;
 
@@ -63,13 +58,13 @@ export default async function DashboardPage() {
         </Alert>
       ))}
 
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-primary via-primary to-primary/85 text-primary-foreground shadow-lg shadow-primary/20">
+      <Card className="overflow-hidden border-none bg-gradient-to-br from-brand via-brand to-brand/85 text-brand-foreground shadow-lg shadow-brand/20">
         <CardContent className="py-5">
-          <p className="text-sm text-primary-foreground/80">Total balance</p>
+          <p className="text-sm text-brand-foreground/80">Total balance</p>
           <p className="mt-1 text-3xl font-semibold tracking-tight">
             {formatMoney(data.availableNow, data.currency)}
           </p>
-          <p className="mt-1 flex items-center gap-1 text-xs text-primary-foreground/80">
+          <p className="mt-1 flex items-center gap-1 text-xs text-brand-foreground/80">
             {balanceUp ? (
               <ArrowUpRight className="size-3.5" />
             ) : (
@@ -79,32 +74,32 @@ export default async function DashboardPage() {
           </p>
 
           <div className="mt-5 border-t border-white/15 pt-4">
-            <p className="mb-3 flex items-center gap-1.5 text-xs font-medium text-primary-foreground/90">
+            <p className="mb-3 flex items-center gap-1.5 text-xs font-medium text-brand-foreground/90">
               <ShieldCheck className="size-3.5" />
               You&apos;re protected
             </p>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-xs text-primary-foreground/70">Expected</p>
+                <p className="text-xs text-brand-foreground/70">Expected</p>
                 <p className="text-sm font-semibold">
                   {formatMoney(data.expectedThisMonth, data.currency)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-primary-foreground/70">Committed</p>
+                <p className="text-xs text-brand-foreground/70">Committed</p>
                 <p className="text-sm font-semibold">
                   {formatMoney(data.committedToPay, data.currency)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-primary-foreground/70">Safe to spend</p>
+                <p className="text-xs text-brand-foreground/70">Safe to spend</p>
                 <p className="text-sm font-semibold">
                   {formatMoney(data.safeToSpend, data.currency)}
                 </p>
               </div>
             </div>
           </div>
-          <p className="mt-3 text-[11px] leading-snug text-primary-foreground/60">
+          <p className="mt-3 text-[11px] leading-snug text-brand-foreground/60">
             Safe to spend = available now, minus bills you owe
             {data.plannedSavings > 0 ? ", planned savings/tithe set-asides" : ""}
             {data.minimumReserve > 0 ? ", and your minimum reserve" : ""}.

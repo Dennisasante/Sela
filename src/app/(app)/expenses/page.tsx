@@ -17,14 +17,24 @@ const EXPENSE_TABS = ["expenses", "bills", "loans", "gifts"] as const;
 export default async function ExpensesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; category?: string; account?: string; tab?: string }>;
+  searchParams: Promise<{
+    month?: string;
+    category?: string;
+    account?: string;
+    tab?: string;
+    search?: string;
+    min?: string;
+    max?: string;
+  }>;
 }) {
-  const { month, category, account, tab } = await searchParams;
+  const { month, category, account, tab, search, min, max } = await searchParams;
   const monthOffset = month ? parseInt(month, 10) || 0 : 0;
   const { start, end, label } = monthRangeForOffset(monthOffset);
   const activeTab = EXPENSE_TABS.includes(tab as (typeof EXPENSE_TABS)[number])
     ? (tab as (typeof EXPENSE_TABS)[number])
     : "expenses";
+  const minAmount = min ? Number(min) : undefined;
+  const maxAmount = max ? Number(max) : undefined;
 
   const supabase = await createClient();
 
@@ -37,7 +47,15 @@ export default async function ExpensesPage({
     { data: loans },
     { data: loanTx },
   ] = await Promise.all([
-    getExpenses(supabase, { start, end, categoryId: category, accountId: account }),
+    getExpenses(supabase, {
+      start,
+      end,
+      categoryId: category,
+      accountId: account,
+      search,
+      minAmount,
+      maxAmount,
+    }),
     getExpenses(supabase, { start, end, giftsOnly: true }),
     supabase.from("expense_categories").select("*").order("name"),
     supabase.from("accounts").select("*").eq("is_active", true).order("name"),
@@ -97,6 +115,9 @@ export default async function ExpensesPage({
             monthLabel={label}
             categoryId={category}
             accountId={account}
+            search={search}
+            minAmount={min}
+            maxAmount={max}
           />
           <p className="text-sm text-muted-foreground">
             Total:{" "}

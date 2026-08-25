@@ -43,6 +43,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand: var(--brand);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -61,6 +63,11 @@
   --popover-foreground: oklch(0.22 0.03 259.2);
   --primary: oklch(0.437 0.171 259.206);
   --primary-foreground: oklch(0.99 0.003 259.2);
+  /* Brand surface — the Sela blue hero cards. Deliberately NOT redefined in
+     .dark: these are a fixed brand identity, not a themed surface, so they
+     must not invert into a bright card with black text like buttons do. */
+  --brand: oklch(0.437 0.171 259.206);
+  --brand-foreground: oklch(0.99 0.003 259.2);
   --secondary: oklch(0.94 0.018 259.2);
   --secondary-foreground: oklch(0.437 0.171 259.206);
   --muted: oklch(0.955 0.012 259.2);

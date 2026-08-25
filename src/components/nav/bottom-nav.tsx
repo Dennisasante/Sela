@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -87,6 +88,7 @@ function hrefPath(href: string) {
 export function BottomNav() {
   const pathname = usePathname();
   const moreActive = moreItems.some((item) => hrefPath(item.href) === pathname);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-backdrop-filter:bg-background/80">
@@ -99,7 +101,7 @@ export function BottomNav() {
           <Link
             href="/add"
             aria-label="Add"
-            className="absolute -top-6 flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/40 ring-4 ring-background transition-transform active:scale-95"
+            className="absolute -top-6 flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/80 text-brand-foreground shadow-lg shadow-brand/40 ring-4 ring-background transition-transform active:scale-95"
           >
             <Plus className="size-6" />
           </Link>
@@ -109,7 +111,7 @@ export function BottomNav() {
           <NavLink key={item.href} item={item} active={pathname === item.href} />
         ))}
 
-        <Sheet>
+        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger
             render={
               <button
@@ -150,6 +152,7 @@ export function BottomNav() {
                       <Link
                         key={item.href}
                         href={item.href}
+                        onClick={() => setMenuOpen(false)}
                         className={cn(
                           "flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium",
                           active ? "bg-primary/10 text-primary" : "hover:bg-muted/60"

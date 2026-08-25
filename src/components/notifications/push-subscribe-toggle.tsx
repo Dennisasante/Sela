@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { toast } from "@/lib/toast";
 import { Bell, BellOff } from "lucide-react";
 import { savePushSubscription, deletePushSubscription } from "@/app/(app)/settings/push-actions";
+import { isIosSafariOutsidePwa } from "@/lib/pwa";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -12,15 +13,6 @@ function urlBase64ToUint8Array(base64String: string) {
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
-}
-
-function isIosSafariOutsidePwa() {
-  if (typeof window === "undefined") return false;
-  const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-  const isStandalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-  return isIos && !isStandalone;
 }
 
 type Status =
@@ -38,10 +30,14 @@ export function PushSubscribeToggle() {
 
     (async () => {
       let next: Status;
-      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        next = { kind: "unsupported" };
-      } else if (isIosSafariOutsidePwa()) {
+      // iOS Safari doesn't expose PushManager at all until the site is
+      // installed to the home screen — check this before the generic
+      // capability check, or installable iOS users see "unsupported"
+      // instead of the accurate "install first" guidance.
+      if (isIosSafariOutsidePwa()) {
         next = { kind: "ios-needs-install" };
+      } else if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        next = { kind: "unsupported" };
       } else {
         try {
           const timeout = new Promise<never>((_, reject) =>

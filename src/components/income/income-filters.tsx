@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -24,12 +25,18 @@ export function IncomeFilters({
   monthLabel,
   sourceId,
   category,
+  search,
+  minAmount,
+  maxAmount,
 }: {
   sources: IncomeSource[];
   monthOffset: number;
   monthLabel: string;
   sourceId?: string;
   category?: string;
+  search?: string;
+  minAmount?: string;
+  maxAmount?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -106,6 +113,40 @@ export function IncomeFilters({
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          defaultValue={search ?? ""}
+          placeholder="Search description"
+          className="pl-8"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") updateParam("search", e.currentTarget.value || null);
+          }}
+          onBlur={(e) => updateParam("search", e.currentTarget.value || null)}
+        />
+      </div>
+      <div className="flex gap-2">
+        <Input
+          type="number"
+          step="0.01"
+          defaultValue={minAmount ?? ""}
+          placeholder="Min amount"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") updateParam("min", e.currentTarget.value || null);
+          }}
+          onBlur={(e) => updateParam("min", e.currentTarget.value || null)}
+        />
+        <Input
+          type="number"
+          step="0.01"
+          defaultValue={maxAmount ?? ""}
+          placeholder="Max amount"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") updateParam("max", e.currentTarget.value || null);
+          }}
+          onBlur={(e) => updateParam("max", e.currentTarget.value || null)}
+        />
       </div>
     </div>
   );
