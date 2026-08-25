@@ -15,3 +15,19 @@ export async function updateDisplayName(formData: FormData) {
   revalidatePath("/profile");
   revalidatePath("/");
 }
+
+export async function updatePassword(formData: FormData) {
+  const newPassword = String(formData.get("new_password") ?? "");
+  const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+  if (newPassword.length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
+  if (newPassword !== confirmPassword) {
+    throw new Error("Passwords don't match");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw new Error(getErrorMessage(error));
+}

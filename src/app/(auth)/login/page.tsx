@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { signIn, resendConfirmation } from "@/app/(auth)/actions";
+import { signIn, resendConfirmation, signInWithGoogle } from "@/app/(auth)/actions";
 import { Logo } from "@/components/logo";
+import { GoogleIcon } from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -62,16 +64,26 @@ export default async function LoginPage({
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 required
                 autoComplete="current-password"
               />
             </div>
             <Button type="submit" className="w-full">
               Sign in
+            </Button>
+          </form>
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <form action={signInWithGoogle}>
+            <Button type="submit" variant="outline" className="w-full gap-2">
+              <GoogleIcon className="size-4" />
+              Continue with Google
             </Button>
           </form>
           <p className="text-center text-sm text-muted-foreground">

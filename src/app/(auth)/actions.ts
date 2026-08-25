@@ -1,8 +1,33 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getErrorMessage } from "@/lib/errors";
+
+async function getOrigin() {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  return `${proto}://${host}`;
+}
+
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+  const origin = await getOrigin();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${origin}/auth/callback` },
+  });
+
+  if (error || !data.url) {
+    redirect(
+      `/login?error=${encodeURIComponent(getErrorMessage(error, "Google sign-in isn't set up for this app yet."))}`
+    );
+  }
+
+  redirect(data.url);
+}
 
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "");

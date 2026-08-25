@@ -8,6 +8,7 @@ import { MinimumReserveForm } from "@/components/settings/minimum-reserve-form";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { PushSubscribeToggle } from "@/components/notifications/push-subscribe-toggle";
 import { InstallPrompt } from "@/components/settings/install-prompt";
+import { ChangePasswordForm } from "@/components/settings/change-password-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronRight, HelpCircle, User } from "lucide-react";
@@ -126,6 +127,15 @@ export default async function SettingsPage() {
                 <ThresholdRow key={t.id} threshold={t} categoryName={category?.name} />
               );
             })}
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium text-muted-foreground">Security</h2>
+        <Card>
+          <CardContent className="py-4">
+            <ChangePasswordForm />
           </CardContent>
         </Card>
       </section>

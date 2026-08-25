@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { signUp } from "@/app/(auth)/actions";
+import { signUp, signInWithGoogle } from "@/app/(auth)/actions";
 import { Logo } from "@/components/logo";
+import { GoogleIcon } from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -49,10 +51,9 @@ export default async function SignupPage({
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 required
                 minLength={6}
                 autoComplete="new-password"
@@ -60,6 +61,17 @@ export default async function SignupPage({
             </div>
             <Button type="submit" className="w-full">
               Sign up
+            </Button>
+          </form>
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <form action={signInWithGoogle}>
+            <Button type="submit" variant="outline" className="w-full gap-2">
+              <GoogleIcon className="size-4" />
+              Continue with Google
             </Button>
           </form>
           <p className="text-center text-sm text-muted-foreground">

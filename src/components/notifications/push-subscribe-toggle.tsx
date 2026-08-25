@@ -5,6 +5,7 @@ import { toast } from "@/lib/toast";
 import { Bell, BellOff } from "lucide-react";
 import { savePushSubscription, deletePushSubscription } from "@/app/(app)/settings/push-actions";
 import { isIosSafariOutsidePwa } from "@/lib/pwa";
+import { getErrorMessage } from "@/lib/errors";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -96,8 +97,9 @@ export function PushSubscribeToggle() {
           setStatus({ kind: "ready", subscribed: false });
           toast.success("Notifications turned off");
         }
-      } catch {
-        toast.error("Couldn't update notification settings");
+      } catch (err) {
+        console.error("Push toggle failed:", err);
+        toast.error(getErrorMessage(err, "Couldn't update notification settings"));
       }
     });
   }
