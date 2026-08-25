@@ -25,6 +25,7 @@ import {
   BookOpen,
   HelpCircle,
   ClipboardList,
+  BellRing,
 } from "lucide-react";
 import {
   Sheet,
@@ -62,6 +63,7 @@ const menuGroups = [
       { href: "/reports", label: "Reports", icon: BarChart3 },
       { href: "/financial-health", label: "Financial health", icon: HeartPulse },
       { href: "/calendar", label: "Financial calendar", icon: CalendarDays },
+      { href: "/reminders", label: "Reminders", icon: BellRing },
     ],
   },
   {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { SavingsBaseType, GoalPriority, GoalStatus } from "@/lib/supabase/types";
+import type { SavingsBaseType, GoalPriority, GoalStatus, GoalKind } from "@/lib/supabase/types";
 
 export async function createSavingsRule(formData: FormData) {
   const supabase = await createClient();
@@ -60,6 +60,9 @@ export async function createSavingsGoal(formData: FormData) {
     category: (formData.get("category") as string) || null,
     status: "active",
     notes: (formData.get("description") as string) || null,
+    kind: (String(formData.get("kind") || "goal") as GoalKind),
+    is_recurring: formData.get("is_recurring") === "on",
+    cycle_started_at: new Date().toISOString(),
   });
 
   if (error) throw new Error(error.message);
@@ -80,6 +83,37 @@ export async function updateSavingsGoal(goalId: string, formData: FormData) {
       priority: String(formData.get("priority") || "medium") as GoalPriority,
       category: (formData.get("category") as string) || null,
       notes: (formData.get("description") as string) || null,
+      is_recurring: formData.get("is_recurring") === "on",
+    })
+    .eq("id", goalId);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/savings");
+}
+
+export async function restartSinkingFundCycle(goalId: string) {
+  const supabase = await createClient();
+  const { data: goal, error: fetchError } = await supabase
+    .from("savings_goals")
+    .select("target_date, is_recurring")
+    .eq("id", goalId)
+    .single();
+  if (fetchError) throw new Error(fetchError.message);
+
+  const nextTargetDate = goal.target_date
+    ? (() => {
+        const d = new Date(goal.target_date!);
+        d.setFullYear(d.getFullYear() + 1);
+        return d.toISOString().slice(0, 10);
+      })()
+    : null;
+
+  const { error } = await supabase
+    .from("savings_goals")
+    .update({
+      cycle_started_at: new Date().toISOString(),
+      target_date: goal.is_recurring ? nextTargetDate : goal.target_date,
+      status: "active",
     })
     .eq("id", goalId);
 

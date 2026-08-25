@@ -35,15 +35,18 @@ export function SavingsGoalFormDialog({
   trigger,
   accounts,
   goal,
+  kind = "goal",
   open: controlledOpen,
   onOpenChange: setControlledOpen,
 }: {
   trigger?: ReactElement;
   accounts: Account[];
   goal?: SavingsGoalProgress;
+  kind?: "goal" | "sinking_fund";
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const isSinkingFund = (goal?.kind ?? kind) === "sinking_fund";
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
@@ -74,9 +77,18 @@ export function SavingsGoalFormDialog({
       {trigger && <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{goal ? "Edit goal" : "New goal"}</DialogTitle>
+          <DialogTitle>
+            {goal
+              ? isSinkingFund
+                ? "Edit sinking fund"
+                : "Edit goal"
+              : isSinkingFund
+                ? "New sinking fund"
+                : "New goal"}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="hidden" name="kind" value={isSinkingFund ? "sinking_fund" : "goal"} />
           <div className="space-y-2">
             <Label htmlFor="goal_name">Name</Label>
             <Input
@@ -84,7 +96,11 @@ export function SavingsGoalFormDialog({
               name="name"
               required
               defaultValue={goal?.name}
-              placeholder="e.g. Emergency Fund, Laptop, Rent"
+              placeholder={
+                isSinkingFund
+                  ? "e.g. Insurance renewal, Christmas"
+                  : "e.g. Emergency Fund, Laptop, Rent"
+              }
             />
           </div>
           <div className="space-y-2">
@@ -105,7 +121,9 @@ export function SavingsGoalFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="target_date">Target date (optional)</Label>
+              <Label htmlFor="target_date">
+                {isSinkingFund ? "Due date" : "Target date (optional)"}
+              </Label>
               <Input
                 id="target_date"
                 name="target_date"
@@ -162,6 +180,20 @@ export function SavingsGoalFormDialog({
               </SelectContent>
             </Select>
           </div>
+          {isSinkingFund && (
+            <div className="flex items-center gap-2">
+              <input
+                id="is_recurring"
+                name="is_recurring"
+                type="checkbox"
+                className="size-4"
+                defaultChecked={goal?.isRecurring}
+              />
+              <Label htmlFor="is_recurring" className="font-normal">
+                Recurs every year (e.g. insurance, Christmas)
+              </Label>
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={pending}>
             {pending ? "Saving…" : goal ? "Save changes" : "Create goal"}
           </Button>

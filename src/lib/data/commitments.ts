@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Bill, Loan } from "@/lib/supabase/types";
 import { toISODate } from "@/lib/format";
 import { getSubscriptions } from "@/lib/data/subscriptions";
-import { getSavingsRulesProgress } from "@/lib/data/savings";
+import { getSavingsRulesProgress, getSavingsGoalsProgress } from "@/lib/data/savings";
 
 export type CommitmentBill = {
   bill: Bill;
@@ -25,6 +25,8 @@ export type CommitmentsOverview = {
   loansOwedByMe: number;
   savingsRulesMonthly: number;
   savingsRulesCount: number;
+  sinkingFundsMonthly: number;
+  sinkingFundsCount: number;
   grandTotalThisMonth: number;
 };
 
@@ -38,6 +40,7 @@ export async function getCommitmentsOverview(
     { data: payments },
     subscriptionData,
     savingsRules,
+    sinkingFunds,
     { data: loans },
     { data: loanTx },
   ] = await Promise.all([
@@ -45,6 +48,7 @@ export async function getCommitmentsOverview(
     supabase.from("expenses").select("bill_id, amount").not("bill_id", "is", null),
     getSubscriptions(supabase),
     getSavingsRulesProgress(supabase),
+    getSavingsGoalsProgress(supabase, "sinking_fund"),
     supabase.from("loans").select("*").order("date", { ascending: false }),
     supabase.from("loan_transactions").select("loan_id, type, amount"),
   ]);
@@ -80,6 +84,19 @@ export async function getCommitmentsOverview(
   const loansOwedByMe = loanRows.reduce((sum, l) => sum + l.outstanding, 0);
 
   const savingsRulesMonthly = savingsRules.reduce((sum, r) => sum + r.setAsideAmount, 0);
+  const activeSinkingFunds = sinkingFunds.filter((f) => f.status === "active");
+  const sinkingFundsMonthly = activeSinkingFunds.reduce(
+    (sum, f) =>
+      sum +
+      (f.suggestedContribution
+        ? f.suggestedContribution.period === "month"
+          ? f.suggestedContribution.amount
+          : f.suggestedContribution.period === "week"
+            ? f.suggestedContribution.amount * (52 / 12)
+            : f.suggestedContribution.amount * 30
+        : 0),
+    0
+  );
 
   const currency = billRows[0]?.bill.currency ?? loanRows[0]?.loan.currency ?? "GHS";
 
@@ -94,6 +111,9 @@ export async function getCommitmentsOverview(
     loansOwedByMe,
     savingsRulesMonthly,
     savingsRulesCount: savingsRules.length,
-    grandTotalThisMonth: billsTotalOwed + subscriptionData.summary.monthlyCost + savingsRulesMonthly,
+    sinkingFundsMonthly,
+    sinkingFundsCount: activeSinkingFunds.length,
+    grandTotalThisMonth:
+      billsTotalOwed + subscriptionData.summary.monthlyCost + savingsRulesMonthly + sinkingFundsMonthly,
   };
 }

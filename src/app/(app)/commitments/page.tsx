@@ -4,7 +4,7 @@ import { getCommitmentsOverview } from "@/lib/data/commitments";
 import { formatMoney, formatDate } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Receipt, Repeat, HandCoins, PiggyBank, ChevronRight } from "lucide-react";
+import { Receipt, Repeat, HandCoins, PiggyBank, CalendarClock, ChevronRight } from "lucide-react";
 
 export default async function CommitmentsPage() {
   const supabase = await createClient();
@@ -27,7 +27,7 @@ export default async function CommitmentsPage() {
             {formatMoney(overview.grandTotalThisMonth, currency)}
           </p>
           <p className="mt-1 text-xs text-brand-foreground/70">
-            Bills owed + subscriptions + planned savings
+            Bills owed + subscriptions + planned savings + sinking funds
           </p>
         </CardContent>
       </Card>
@@ -143,6 +143,28 @@ export default async function CommitmentsPage() {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {overview.savingsRulesCount} active
+                </p>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+
+      <Link href="/savings" className="block">
+        <Card>
+          <CardContent className="flex items-center justify-between py-4">
+            <span className="flex items-center gap-2 font-medium">
+              <CalendarClock className="size-4 text-muted-foreground" />
+              Sinking funds
+            </span>
+            <div className="flex items-center gap-2">
+              <div className="text-right">
+                <p className="text-sm font-semibold">
+                  {formatMoney(overview.sinkingFundsMonthly, currency)}/mo
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {overview.sinkingFundsCount} active
                 </p>
               </div>
               <ChevronRight className="size-4 text-muted-foreground" />

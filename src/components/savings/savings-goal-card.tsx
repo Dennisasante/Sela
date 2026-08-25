@@ -8,7 +8,9 @@ import {
   deleteSavingsGoal,
   updateGoalStatus,
   logGoalContribution,
+  restartSinkingFundCycle,
 } from "@/app/(app)/savings/actions";
+import { Repeat } from "lucide-react";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
 import { withDataSlot } from "@/lib/utils";
 import type { SavingsGoalProgress } from "@/lib/data/savings";
@@ -94,6 +96,17 @@ export function SavingsGoalCard({
     });
   }
 
+  function handleRestartCycle() {
+    startTransition(async () => {
+      try {
+        await restartSinkingFundCycle(goal.id);
+        toast.success("Cycle restarted for next time");
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      }
+    });
+  }
+
   function handleContribute(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -141,6 +154,12 @@ export function SavingsGoalCard({
                 />
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>
+                  {goal.kind === "sinking_fund" && (
+                    <DropdownMenuItem disabled={pending} onClick={handleRestartCycle}>
+                      <Repeat className="size-4" />
+                      Mark paid &amp; restart
+                    </DropdownMenuItem>
+                  )}
                   {goal.status === "active" && (
                     <DropdownMenuItem disabled={pending} onClick={() => handleStatus("paused")}>
                       Pause goal
@@ -184,7 +203,9 @@ export function SavingsGoalCard({
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
               {formatMoney(goal.remaining, goal.currency)} remaining
-              {goal.targetDate && ` · Target ${formatDate(goal.targetDate)}`}
+              {goal.targetDate &&
+                ` · ${goal.kind === "sinking_fund" ? "Due" : "Target"} ${formatDate(goal.targetDate)}`}
+              {goal.kind === "sinking_fund" && goal.isRecurring && " · Recurs yearly"}
             </span>
           </div>
 

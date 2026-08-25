@@ -214,6 +214,8 @@ export type SavingsRule = BaseRow & {
   is_active: boolean;
 };
 
+export type GoalKind = "goal" | "sinking_fund";
+
 export type SavingsGoal = BaseRow & {
   name: string;
   target_account_id: string | null;
@@ -223,6 +225,20 @@ export type SavingsGoal = BaseRow & {
   category: string | null;
   status: GoalStatus;
   notes: string | null;
+  kind: GoalKind;
+  is_recurring: boolean;
+  cycle_started_at: string;
+};
+
+export type ReminderRepeat = "none" | "daily" | "weekly" | "monthly" | "yearly";
+
+export type Reminder = BaseRow & {
+  title: string;
+  notes: string | null;
+  remind_at: string;
+  repeat: ReminderRepeat;
+  is_active: boolean;
+  last_fired_at: string | null;
 };
 
 export type AlertThreshold = BaseRow & {
@@ -321,6 +337,7 @@ export type Database = {
           user_id?: string;
         }
       >;
+      reminders: TableDef<Reminder, WithOptionalOwnerFields<Reminder>>;
     };
     Views: {
       account_balances: {

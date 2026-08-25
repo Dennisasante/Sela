@@ -53,5 +53,56 @@ export async function GET(request: Request) {
     sent += 1;
   }
 
-  return NextResponse.json({ ok: true, usersNotified: sent });
+  const remindersSent = await fireDueReminders(supabase);
+
+  return NextResponse.json({ ok: true, usersNotified: sent, remindersSent });
+}
+
+// Vercel Hobby cron only allows daily-frequency jobs, so standalone reminders
+// (which have no dedicated cron slot) piggyback on this once-a-day run rather
+// than firing at the exact time the user picked.
+async function fireDueReminders(supabase: ReturnType<typeof createServiceClient>) {
+  const now = new Date().toISOString();
+
+  const { data: due } = await supabase
+    .from("reminders")
+    .select("*")
+    .eq("is_active", true)
+    .lte("remind_at", now);
+
+  let remindersSent = 0;
+  for (const reminder of due ?? []) {
+    await sendPushToUser(supabase, reminder.user_id, {
+      title: reminder.title,
+      body: reminder.notes ?? "Reminder from Sela",
+      url: "/reminders",
+    });
+    remindersSent += 1;
+
+    const nextRemindAt = nextOccurrence(reminder.remind_at, reminder.repeat);
+    await supabase
+      .from("reminders")
+      .update({
+        last_fired_at: now,
+        remind_at: nextRemindAt ?? reminder.remind_at,
+        is_active: nextRemindAt !== null,
+      })
+      .eq("id", reminder.id);
+  }
+
+  return remindersSent;
+}
+
+function nextOccurrence(remindAt: string, repeat: string): string | null {
+  if (repeat === "none") return null;
+  const d = new Date(remindAt);
+  const now = new Date();
+  do {
+    if (repeat === "daily") d.setDate(d.getDate() + 1);
+    else if (repeat === "weekly") d.setDate(d.getDate() + 7);
+    else if (repeat === "monthly") d.setMonth(d.getMonth() + 1);
+    else if (repeat === "yearly") d.setFullYear(d.getFullYear() + 1);
+    else return null;
+  } while (d.getTime() <= now.getTime());
+  return d.toISOString();
 }

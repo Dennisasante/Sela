@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, GoalKind } from "@/lib/supabase/types";
 import { currentMonthRange } from "@/lib/format";
 
 export type SavingsRuleContribution = {
@@ -107,27 +107,39 @@ export type SavingsGoalProgress = {
   suggestedContribution: { amount: number; period: "day" | "week" | "month" } | null;
   shortfallEstimate: number | null;
   currency: string;
+  kind: GoalKind;
+  isRecurring: boolean;
+  cycleStartedAt: string;
 };
 
 export async function getSavingsGoalsProgress(
-  supabase: SupabaseClient<Database>
+  supabase: SupabaseClient<Database>,
+  kind?: GoalKind
 ): Promise<SavingsGoalProgress[]> {
+  let query = supabase.from("savings_goals").select("*, accounts(name)").order("created_at");
+  if (kind) query = query.eq("kind", kind);
+
   const [{ data: goals }, { data: contributions }] = await Promise.all([
-    supabase.from("savings_goals").select("*, accounts(name)").order("created_at"),
-    supabase.from("transfers").select("goal_id, amount").not("goal_id", "is", null),
+    query,
+    supabase.from("transfers").select("goal_id, amount, date").not("goal_id", "is", null),
   ]);
 
-  const contributedByGoal = new Map<string, number>();
+  const contributionsByGoal = new Map<string, { amount: number; date: string }[]>();
   for (const c of contributions ?? []) {
     if (!c.goal_id) continue;
-    contributedByGoal.set(c.goal_id, (contributedByGoal.get(c.goal_id) ?? 0) + c.amount);
+    const list = contributionsByGoal.get(c.goal_id) ?? [];
+    list.push({ amount: c.amount, date: c.date });
+    contributionsByGoal.set(c.goal_id, list);
   }
 
   const today = new Date();
 
   return (goals ?? []).map((goal) => {
     const account = goal.accounts as unknown as { name?: string } | null;
-    const currentAmount = contributedByGoal.get(goal.id) ?? 0;
+    const cycleStart = goal.cycle_started_at ? goal.cycle_started_at.slice(0, 10) : "";
+    const currentAmount = (contributionsByGoal.get(goal.id) ?? [])
+      .filter((c) => c.date >= cycleStart)
+      .reduce((sum, c) => sum + c.amount, 0);
     const targetAmount = goal.target_amount;
     const remaining = Math.max(0, targetAmount - currentAmount);
     const progressPct = targetAmount > 0 ? Math.min(100, (currentAmount / targetAmount) * 100) : 0;
@@ -196,6 +208,9 @@ export async function getSavingsGoalsProgress(
       daysRemaining,
       priority: goal.priority as "low" | "medium" | "high",
       category: goal.category,
+      kind: goal.kind,
+      isRecurring: goal.is_recurring,
+      cycleStartedAt: goal.cycle_started_at,
       status: goal.status as "active" | "paused" | "cancelled",
       displayStatus,
       suggestedContribution,
