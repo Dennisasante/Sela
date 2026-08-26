@@ -22,7 +22,7 @@ export default async function NotificationsPage() {
 
       <div className="space-y-2">
         {alerts.map((alert) => (
-          <Link key={alert.id} href={alert.href}>
+          <Link key={alert.id} href={alert.href} className="block">
             <Card>
               <CardContent className="flex items-start gap-3 py-4">
                 <div

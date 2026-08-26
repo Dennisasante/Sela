@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
@@ -20,6 +20,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export function ProjectCard({
   project,
@@ -31,10 +39,15 @@ export function ProjectCard({
   accounts: Account[];
 }) {
   const [pending, startTransition] = useTransition();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const balance = project.totalAmount - project.paidToDate;
   const progressPct =
     project.totalAmount > 0 ? Math.min(100, (project.paidToDate / project.totalAmount) * 100) : 0;
   const categoryColor = getIncomeCategoryColor(project.sourceCategory);
+  // A literal green, not the app's --success token (which is the same blue
+  // hue as --primary at a different lightness) — "paid" should read as
+  // genuinely green, not another shade of blue.
+  const progressColor = project.paidToDate > 0 ? "#22c55e" : "#94a3b8";
 
   function handleStatusChange(status: ProjectStatus) {
     startTransition(async () => {
@@ -47,12 +60,22 @@ export function ProjectCard({
   }
 
   function handleDelete() {
+    if (project.paidToDate > 0) {
+      setDeleteConfirmOpen(true);
+      return;
+    }
+    confirmDelete();
+  }
+
+  function confirmDelete() {
     startTransition(async () => {
       try {
         await deleteProject(project.id);
         toast.success("Project removed");
       } catch (err) {
         toast.error(getErrorMessage(err));
+      } finally {
+        setDeleteConfirmOpen(false);
       }
     });
   }
@@ -131,7 +154,7 @@ export function ProjectCard({
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
             className="h-full rounded-full transition-all"
-            style={{ width: `${progressPct}%`, backgroundColor: categoryColor }}
+            style={{ width: `${progressPct}%`, backgroundColor: progressColor }}
           />
         </div>
         <div className="flex justify-between text-xs text-muted-foreground">
@@ -165,6 +188,27 @@ export function ProjectCard({
 
         <MilestoneList projectId={project.id} milestones={milestones} accounts={accounts} />
       </CardContent>
+
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete {project.title}?</DialogTitle>
+            <DialogDescription>
+              This project has {formatMoney(project.paidToDate, project.currency)} recorded
+              against it. Deleting the project won&apos;t delete that income — it stays in your
+              Income list, just no longer linked to a project.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" disabled={pending} onClick={confirmDelete}>
+              {pending ? "Deleting…" : "Delete project"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -37,7 +37,7 @@ export default async function SearchPage({
       {results.length > 0 && (
         <div className="space-y-2">
           {results.map((r) => (
-            <Link key={`${r.type}-${r.id}`} href={r.href}>
+            <Link key={`${r.type}-${r.id}`} href={r.href} className="block">
               <Card>
                 <CardContent className="flex items-center justify-between py-3">
                   <div>

@@ -54,18 +54,26 @@ export default async function IncomePage({
   const maxAmount = max ? Number(max) : undefined;
 
   const supabase = await createClient();
-  await ensureCurrentOccurrences(supabase);
+  try {
+    await ensureCurrentOccurrences(supabase);
+  } catch (err) {
+    console.error("ensureCurrentOccurrences failed:", err);
+  }
 
+  // A bug in any one tab's data (e.g. Projects) shouldn't take down the
+  // whole page — settle independently and fall back to an empty result per
+  // section instead of Promise.all's fail-everything-together behavior.
   const [
-    entries,
-    clientTotals,
-    clientOverviews,
-    projects,
-    milestonesByProject,
-    { data: sources },
-    expected,
-    { data: accounts },
-  ] = await Promise.all([
+    entriesResult,
+    clientTotalsResult,
+    clientOverviewsResult,
+    projectsResult,
+    milestonesResult,
+    sourcesResult,
+    expectedResult,
+    accountsResult,
+    recurringResult,
+  ] = await Promise.allSettled([
     getIncomeEntries(supabase, {
       start,
       end,
@@ -82,7 +90,31 @@ export default async function IncomePage({
     supabase.from("income_sources").select("*").order("name"),
     getExpectedIncome(supabase),
     supabase.from("accounts").select("*").eq("is_active", true).order("name"),
+    supabase.from("recurring_income").select("*").order("created_at", { ascending: false }),
   ]);
+
+  function unwrap<T>(result: PromiseSettledResult<T>, fallback: T, label: string): T {
+    if (result.status === "fulfilled") return result.value;
+    console.error(`Income page: ${label} failed:`, result.reason);
+    return fallback;
+  }
+
+  const entries = unwrap(entriesResult, [], "entries");
+  const clientTotals = unwrap(clientTotalsResult, [], "clientTotals");
+  const clientOverviews = unwrap(clientOverviewsResult, [], "clientOverviews");
+  const projects = unwrap(projectsResult, [], "projects");
+  const milestonesByProject = unwrap(milestonesResult, new Map(), "milestones");
+  const sources = sourcesResult.status === "fulfilled" ? sourcesResult.value.data : [];
+  const expected = unwrap(expectedResult, [], "expected");
+  const accounts = accountsResult.status === "fulfilled" ? accountsResult.value.data : [];
+  const recurringIncomeRows =
+    recurringResult.status === "fulfilled" ? (recurringResult.value.data ?? []) : [];
+  // Rows come back newest-first; keep only the first (most recent) row seen
+  // per source so an old superseded recurring_income row never wins.
+  const recurringBySource = new Map<string, (typeof recurringIncomeRows)[number]>();
+  for (const row of recurringIncomeRows) {
+    if (!recurringBySource.has(row.source_id)) recurringBySource.set(row.source_id, row);
+  }
 
   const monthTotalBySource = new Map(clientTotals.map((c) => [c.sourceId, c.total]));
 
@@ -183,6 +215,7 @@ export default async function IncomePage({
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">{label}</p>
             <SourceFormDialog
+              accounts={accounts ?? []}
               trigger={
                 <Button size="sm">
                   <Plus className="size-4" />
@@ -205,6 +238,8 @@ export default async function IncomePage({
                   key={client.sourceId}
                   client={client}
                   source={fullSource}
+                  recurringIncome={recurringBySource.get(client.sourceId) ?? null}
+                  accounts={accounts ?? []}
                   monthTotal={monthTotalBySource.get(client.sourceId) ?? 0}
                 />
               );

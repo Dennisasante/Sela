@@ -6,17 +6,21 @@ import { formatMoney, formatDate } from "@/lib/format";
 import { SourceFormDialog } from "@/components/clients/source-form-dialog";
 import { getIncomeCategoryColor, getIncomeCategoryLabel } from "@/lib/income-category-style";
 import type { ClientOverview } from "@/lib/data/income";
-import type { IncomeSource } from "@/lib/supabase/types";
+import type { Account, IncomeSource, RecurringIncome } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export function ClientCard({
   client,
   source,
+  recurringIncome,
+  accounts = [],
   monthTotal,
 }: {
   client: ClientOverview;
   source: IncomeSource;
+  recurringIncome?: RecurringIncome | null;
+  accounts?: Account[];
   monthTotal: number;
 }) {
   const [editOpen, setEditOpen] = useState(false);
@@ -101,7 +105,13 @@ export function ClientCard({
         </div>
       </CardContent>
 
-      <SourceFormDialog source={source} open={editOpen} onOpenChange={setEditOpen} />
+      <SourceFormDialog
+        source={source}
+        recurringIncome={recurringIncome}
+        accounts={accounts}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
     </Card>
   );
 }

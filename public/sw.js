@@ -1,4 +1,4 @@
-const CACHE_NAME = "sela-shell-v2";
+const CACHE_NAME = "sela-shell-v3";
 const APP_SHELL = ["/", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png", "/offline.html"];
 
 self.addEventListener("install", (event) => {
@@ -27,26 +27,21 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Only ever intercept full-page navigations, and only to provide an
+  // offline fallback. Everything else — RSC/data fetches from client-side
+  // navigation, API routes, even static assets — goes straight to the
+  // network. A previous cache-first version here cached every GET response
+  // indefinitely (including error responses and stale app data), which is
+  // what caused data to look stale or "vanish" after switching tabs. Next.js
+  // already sets long-lived immutable cache headers on hashed static assets,
+  // so the browser's own HTTP cache handles that case without help here.
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request).catch(
         () => caches.match(request).then((cached) => cached || caches.match("/offline.html"))
       )
     );
-    return;
   }
-
-  event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        })
-    )
-  );
 });
 
 self.addEventListener("push", (event) => {

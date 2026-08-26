@@ -5,7 +5,8 @@ import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createIncomeSource, updateIncomeSource } from "@/app/(app)/settings/actions";
 import { withDataSlot } from "@/lib/utils";
-import type { IncomeSource } from "@/lib/supabase/types";
+import { toISODate } from "@/lib/format";
+import type { Account, IncomeSource, RecurringIncome } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,11 +34,15 @@ const CATEGORY_LABEL: Record<string, string> = {
 export function SourceFormDialog({
   trigger,
   source,
+  recurringIncome,
+  accounts = [],
   open: controlledOpen,
   onOpenChange: setControlledOpen,
 }: {
   trigger?: ReactElement;
   source?: IncomeSource;
+  recurringIncome?: RecurringIncome | null;
+  accounts?: Account[];
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -45,6 +50,7 @@ export function SourceFormDialog({
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
   const [pending, startTransition] = useTransition();
+  const [isRecurring, setIsRecurring] = useState(source?.is_recurring ?? false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -112,17 +118,80 @@ export function SourceFormDialog({
             <Label htmlFor="email">Email (optional)</Label>
             <Input id="email" name="email" type="email" defaultValue={source?.email ?? ""} />
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              id="is_recurring"
-              name="is_recurring"
-              type="checkbox"
-              className="size-4"
-              defaultChecked={source?.is_recurring}
-            />
-            <Label htmlFor="is_recurring" className="font-normal">
-              This is a recurring client/source (e.g. monthly retainer)
-            </Label>
+          <div className="space-y-3 rounded-lg border p-3">
+            <div className="flex items-center gap-2">
+              <input
+                id="is_recurring"
+                name="is_recurring"
+                type="checkbox"
+                className="size-4"
+                checked={isRecurring}
+                onChange={(e) => setIsRecurring(e.target.checked)}
+              />
+              <Label htmlFor="is_recurring" className="font-normal">
+                This is a recurring client/source (e.g. monthly retainer)
+              </Label>
+            </div>
+            {isRecurring && (
+              <div className="space-y-3 border-t pt-3">
+                <p className="text-xs text-muted-foreground">
+                  Sela will forecast this automatically every cycle under Income → Expected —
+                  you can still record a different actual amount when it comes in.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="expected_amount">Expected amount</Label>
+                    <Input
+                      id="expected_amount"
+                      name="expected_amount"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      required={isRecurring}
+                      defaultValue={recurringIncome?.expected_amount ?? undefined}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="expected_day_of_month">Day of month</Label>
+                    <Input
+                      id="expected_day_of_month"
+                      name="expected_day_of_month"
+                      type="number"
+                      min={1}
+                      max={31}
+                      required={isRecurring}
+                      defaultValue={recurringIncome?.expected_day_of_month ?? undefined}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="default_account_id">Usually received into (optional)</Label>
+                  <Select
+                    name="default_account_id"
+                    defaultValue={recurringIncome?.default_account_id ?? "none"}
+                  >
+                    <SelectTrigger id="default_account_id" className="w-full">
+                      <SelectValue>
+                        {(value: string | null) =>
+                          value && value !== "none"
+                            ? (accounts.find((a) => a.id === value)?.name ?? "None")
+                            : "None"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {accounts.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <input type="hidden" name="start_date" value={toISODate(new Date())} />
+              </div>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={pending}>
             {pending ? "Saving…" : source ? "Save changes" : "Add source"}

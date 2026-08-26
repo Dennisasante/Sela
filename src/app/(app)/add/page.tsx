@@ -32,7 +32,7 @@ export default function AddPage() {
       <h1 className="text-xl font-semibold">Add</h1>
       <div className="space-y-3">
         {options.map((option) => (
-          <Link key={option.href} href={option.href}>
+          <Link key={option.href} href={option.href} className="block">
             <Card className="flex-row items-center gap-4 p-4">
               <option.icon className={`size-8 ${option.color}`} />
               <div>
