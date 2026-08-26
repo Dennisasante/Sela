@@ -59,6 +59,22 @@ export function BillCard({
   const isOverdue = bill.status !== "paid" && bill.due_date < toISODate(new Date());
   const displayStatus = isOverdue && bill.status === "pending" ? "overdue" : bill.status;
 
+  // Recurring bills roll their due_date forward and reset to "pending"
+  // immediately after being paid, so status alone can't show "already paid
+  // this cycle" — check the payment history directly instead.
+  const now = new Date();
+  const latestPayment = payments.reduce<{ id: string; amount: number; date: string } | null>(
+    (latest, p) => (!latest || p.date > latest.date ? p : latest),
+    null
+  );
+  const paidThisCycle =
+    bill.is_recurring &&
+    !!latestPayment &&
+    (bill.recurrence === "yearly"
+      ? new Date(latestPayment.date).getFullYear() === now.getFullYear()
+      : new Date(latestPayment.date).getFullYear() === now.getFullYear() &&
+        new Date(latestPayment.date).getMonth() === now.getMonth());
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -103,20 +119,26 @@ export function BillCard({
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Due {formatDate(bill.due_date)}
+                {paidThisCycle
+                  ? `Paid ${formatDate(latestPayment!.date)} · next due ${formatDate(bill.due_date)}`
+                  : `Due ${formatDate(bill.due_date)}`}
               </p>
             </div>
             <div className="flex items-center gap-1">
               <Badge
                 variant={
-                  displayStatus === "paid"
+                  displayStatus === "paid" || paidThisCycle
                     ? "success"
                     : displayStatus === "overdue"
                       ? "destructive"
                       : "info"
                 }
               >
-                {STATUS_LABEL[displayStatus]}
+                {paidThisCycle
+                  ? bill.recurrence === "yearly"
+                    ? `Paid for ${now.getFullYear()}`
+                    : "Paid this month"
+                  : STATUS_LABEL[displayStatus]}
               </Badge>
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -145,7 +167,7 @@ export function BillCard({
                 </p>
               )}
             </div>
-            {bill.status !== "paid" && (
+            {bill.status !== "paid" && !paidThisCycle && (
               <Button size="sm" disabled={pending} onClick={() => setPayOpen(true)}>
                 Mark paid
               </Button>

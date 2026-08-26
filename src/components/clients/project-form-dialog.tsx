@@ -85,7 +85,7 @@ export function ProjectFormDialog({
           </div>
           <div className="space-y-2">
             <Label htmlFor="proj_amount">Agreed amount</Label>
-            <Input id="proj_amount" name="total_amount" type="number" step="0.01" required />
+            <Input id="proj_amount" name="total_amount" type="number" step="0.01" min="0.01" required />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">

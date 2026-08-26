@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Mail, Phone, Building2, Pencil } from "lucide-react";
 import { formatMoney, formatDate } from "@/lib/format";
 import { SourceFormDialog } from "@/components/clients/source-form-dialog";
+import { getIncomeCategoryColor, getIncomeCategoryLabel } from "@/lib/income-category-style";
 import type { ClientOverview } from "@/lib/data/income";
 import type { IncomeSource } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export function ClientCard({
@@ -28,9 +28,15 @@ export function ClientCard({
           <div>
             <div className="flex items-center gap-2">
               <p className="font-medium">{client.name}</p>
-              <Badge variant="secondary" className="capitalize">
-                {client.category}
-              </Badge>
+              <span
+                className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                style={{
+                  backgroundColor: `${getIncomeCategoryColor(client.category)}1a`,
+                  color: getIncomeCategoryColor(client.category),
+                }}
+              >
+                {getIncomeCategoryLabel(client.category)}
+              </span>
             </div>
             {client.company && (
               <p className="flex items-center gap-1 text-xs text-muted-foreground">

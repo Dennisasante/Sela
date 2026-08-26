@@ -8,6 +8,7 @@ import { updateProjectStatus, deleteProject } from "@/app/(app)/income/actions";
 import { formatMoney } from "@/lib/format";
 import { withDataSlot } from "@/lib/utils";
 import { MilestoneList } from "@/components/clients/milestone-list";
+import { getIncomeCategoryColor, getIncomeCategoryLabel } from "@/lib/income-category-style";
 import type { ProjectBalance } from "@/lib/data/income";
 import type { Account, ProjectMilestone, ProjectStatus } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +32,9 @@ export function ProjectCard({
 }) {
   const [pending, startTransition] = useTransition();
   const balance = project.totalAmount - project.paidToDate;
+  const progressPct =
+    project.totalAmount > 0 ? Math.min(100, (project.paidToDate / project.totalAmount) * 100) : 0;
+  const categoryColor = getIncomeCategoryColor(project.sourceCategory);
 
   function handleStatusChange(status: ProjectStatus) {
     startTransition(async () => {
@@ -58,7 +62,22 @@ export function ProjectCard({
       <CardContent className="space-y-3 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">{project.title}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-medium">{project.title}</p>
+              {project.sourceName && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                  style={{ backgroundColor: `${categoryColor}1a`, color: categoryColor }}
+                >
+                  {project.sourceName}
+                </span>
+              )}
+            </div>
+            {project.sourceCategory && (
+              <p className="text-xs text-muted-foreground">
+                {getIncomeCategoryLabel(project.sourceCategory)} client
+              </p>
+            )}
             {project.description && (
               <p className="text-xs text-muted-foreground">{project.description}</p>
             )}
@@ -111,10 +130,8 @@ export function ProjectCard({
 
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{
-              width: `${Math.min(100, (project.paidToDate / project.totalAmount) * 100)}%`,
-            }}
+            className="h-full rounded-full transition-all"
+            style={{ width: `${progressPct}%`, backgroundColor: categoryColor }}
           />
         </div>
         <div className="flex justify-between text-xs text-muted-foreground">

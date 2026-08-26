@@ -126,13 +126,18 @@ export type ProjectBalance = {
   projectExpenses: number;
   netReceived: number;
   currency: string;
+  sourceName: string | null;
+  sourceCategory: string | null;
 };
 
 export async function getProjectBalances(
   supabase: SupabaseClient<Database>
 ): Promise<ProjectBalance[]> {
   const [{ data: projects }, { data: entries }, { data: expenses }] = await Promise.all([
-    supabase.from("projects").select("*").order("created_at", { ascending: false }),
+    supabase
+      .from("projects")
+      .select("*, income_sources(name, category)")
+      .order("created_at", { ascending: false }),
     supabase.from("income_entries").select("amount, project_id").not("project_id", "is", null),
     supabase.from("expenses").select("amount, project_id").not("project_id", "is", null),
   ]);
@@ -152,6 +157,7 @@ export async function getProjectBalances(
   return (projects ?? []).map((p) => {
     const paidToDate = paidByProject.get(p.id) ?? 0;
     const projectExpenses = expensesByProject.get(p.id) ?? 0;
+    const source = p.income_sources as unknown as { name?: string; category?: string } | null;
     return {
       id: p.id,
       title: p.title,
@@ -162,6 +168,8 @@ export async function getProjectBalances(
       projectExpenses,
       netReceived: paidToDate - projectExpenses,
       currency: p.currency,
+      sourceName: source?.name ?? null,
+      sourceCategory: source?.category ?? null,
     };
   });
 }
