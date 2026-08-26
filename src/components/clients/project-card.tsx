@@ -195,8 +195,8 @@ export function ProjectCard({
             <DialogTitle>Delete {project.title}?</DialogTitle>
             <DialogDescription>
               This project has {formatMoney(project.paidToDate, project.currency)} recorded
-              against it. Deleting the project won&apos;t delete that income — it stays in your
-              Income list, just no longer linked to a project.
+              against it. Deleting the project will also delete that income from your Income
+              list — this can&apos;t be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -39,9 +39,29 @@ export async function updateProjectStatus(projectId: string, status: ProjectStat
 
 export async function deleteProject(projectId: string) {
   const supabase = await createClient();
+
+  // Deleting a project is treated as "undo this project entirely" — the
+  // income/expenses recorded against it get removed too, not just unlinked,
+  // since a project delete is usually someone correcting a mistake rather
+  // than archiving a project whose real transaction history should persist.
+  const { error: incomeError } = await supabase
+    .from("income_entries")
+    .delete()
+    .eq("project_id", projectId);
+  if (incomeError) throw new Error(incomeError.message);
+
+  const { error: expenseError } = await supabase
+    .from("expenses")
+    .delete()
+    .eq("project_id", projectId);
+  if (expenseError) throw new Error(expenseError.message);
+
   const { error } = await supabase.from("projects").delete().eq("id", projectId);
   if (error) throw new Error(error.message);
+
   revalidatePath("/income");
+  revalidatePath("/expenses");
+  revalidatePath("/");
 }
 
 export async function createMilestone(formData: FormData) {
