@@ -35,14 +35,14 @@ export function ExpenseRow({ expense }: { expense: Row }) {
   const title = expense.payee || expense.categoryName || "Expense";
 
   return (
-    <div className="flex items-center justify-between gap-3 py-3">
-      <div className="flex items-center gap-3">
-        <div className={`flex size-10 shrink-0 items-center justify-center rounded-full ${bg}`}>
+    <div className="flex items-center justify-between gap-3 py-2.5">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${bg}`}>
           <Icon className={`size-4 ${fg}`} />
         </div>
-        <div>
-          <p className="text-sm font-medium">{title}</p>
-          <p className="text-xs text-muted-foreground">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">
             {formatDate(expense.date)}
             {expense.categoryName && expense.categoryName !== title
               ? ` · ${expense.categoryName}`
@@ -51,8 +51,8 @@ export function ExpenseRow({ expense }: { expense: Row }) {
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-1">
-        <p className="text-sm font-semibold text-destructive">
+      <div className="flex shrink-0 items-center gap-1">
+        <p className="text-sm font-semibold tabular-nums text-destructive">
           -{formatMoney(expense.amount, expense.currency)}
         </p>
         <DropdownMenu>

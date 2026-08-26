@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -41,6 +43,7 @@ export function ExpenseFilters({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [showMore, setShowMore] = useState(!!(minAmount || maxAmount));
 
   function updateParam(key: string, value: string | null) {
     const params = new URLSearchParams(searchParams.toString());
@@ -95,40 +98,54 @@ export function ExpenseFilters({
           </SelectContent>
         </Select>
       </div>
-      <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          defaultValue={search ?? ""}
-          placeholder="Search payee or description"
-          className="pl-8"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") updateParam("search", e.currentTarget.value || null);
-          }}
-          onBlur={(e) => updateParam("search", e.currentTarget.value || null)}
-        />
-      </div>
       <div className="flex gap-2">
-        <Input
-          type="number"
-          step="0.01"
-          defaultValue={minAmount ?? ""}
-          placeholder="Min amount"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") updateParam("min", e.currentTarget.value || null);
-          }}
-          onBlur={(e) => updateParam("min", e.currentTarget.value || null)}
-        />
-        <Input
-          type="number"
-          step="0.01"
-          defaultValue={maxAmount ?? ""}
-          placeholder="Max amount"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") updateParam("max", e.currentTarget.value || null);
-          }}
-          onBlur={(e) => updateParam("max", e.currentTarget.value || null)}
-        />
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            defaultValue={search ?? ""}
+            placeholder="Search payee or description"
+            className="pl-8"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") updateParam("search", e.currentTarget.value || null);
+            }}
+            onBlur={(e) => updateParam("search", e.currentTarget.value || null)}
+          />
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label="More filters"
+          onClick={() => setShowMore((v) => !v)}
+          className={showMore ? "border-primary text-primary" : undefined}
+        >
+          <SlidersHorizontal className="size-4" />
+        </Button>
       </div>
+      {showMore && (
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            step="0.01"
+            defaultValue={minAmount ?? ""}
+            placeholder="Min amount"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") updateParam("min", e.currentTarget.value || null);
+            }}
+            onBlur={(e) => updateParam("min", e.currentTarget.value || null)}
+          />
+          <Input
+            type="number"
+            step="0.01"
+            defaultValue={maxAmount ?? ""}
+            placeholder="Max amount"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") updateParam("max", e.currentTarget.value || null);
+            }}
+            onBlur={(e) => updateParam("max", e.currentTarget.value || null)}
+          />
+        </div>
+      )}
     </div>
   );
 }

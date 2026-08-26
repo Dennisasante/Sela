@@ -76,9 +76,6 @@ export function DateRangeFilter({
           />
         </div>
       )}
-      {range !== "custom" && (
-        <p className="text-center text-xs text-muted-foreground">{label}</p>
-      )}
     </div>
   );
 }

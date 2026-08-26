@@ -33,21 +33,21 @@ export function IncomeEntryRow({ entry }: { entry: Row }) {
   const title = entry.sourceName ?? entry.description ?? "One-off income";
 
   return (
-    <div className="flex items-center justify-between gap-3 py-3">
-      <div className="flex items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+    <div className="flex items-center justify-between gap-3 py-2.5">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
           <Briefcase className="size-4 text-primary" />
         </div>
-        <div>
-          <p className="text-sm font-medium">{title}</p>
-          <p className="text-xs text-muted-foreground">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{title}</p>
+          <p className="truncate text-xs text-muted-foreground">
             {formatDate(entry.date)}
             {entry.projectTitle ? ` · ${entry.projectTitle}` : ""} · {entry.accountName}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-1">
-        <p className="text-sm font-semibold text-success">
+      <div className="flex shrink-0 items-center gap-1">
+        <p className="text-sm font-semibold tabular-nums text-success">
           +{formatMoney(entry.amount, entry.currency)}
         </p>
         <DropdownMenu>

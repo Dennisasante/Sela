@@ -37,7 +37,7 @@ export default async function SettingsPage() {
   const minimumReserve = Number(user?.user_metadata?.minimum_reserve ?? 0) || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h1 className="text-xl font-semibold">Settings</h1>
 
       <section className="space-y-2">
@@ -79,19 +79,21 @@ export default async function SettingsPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-medium text-muted-foreground">Notifications</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">Preferences</h2>
         <Card>
-          <CardContent className="py-4">
-            <PushSubscribeToggle />
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-muted-foreground">Install Sela</h2>
-        <Card>
-          <CardContent className="py-4">
-            <InstallPrompt />
+          <CardContent className="divide-y py-0">
+            <div className="py-4 first:pt-4">
+              <PushSubscribeToggle />
+            </div>
+            <div className="py-4">
+              <InstallPrompt />
+            </div>
+            <div className="py-4">
+              <ThemeToggle />
+            </div>
+            <div className="py-4 text-sm last:pb-4">
+              Ghana Cedis (₵ GHS) — the default currency for all accounts.
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -188,24 +190,6 @@ export default async function SettingsPage() {
         <Card>
           <CardContent className="py-4">
             <MinimumReserveForm minimumReserve={minimumReserve} />
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-muted-foreground">Appearance</h2>
-        <Card>
-          <CardContent className="py-4">
-            <ThemeToggle />
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-muted-foreground">Currency</h2>
-        <Card>
-          <CardContent className="py-4 text-sm">
-            Ghana Cedis (₵ GHS) — the default currency for all accounts.
           </CardContent>
         </Card>
       </section>
