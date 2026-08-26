@@ -42,7 +42,7 @@ export default async function DashboardPage() {
   const balanceUp = data.balanceChangeThisMonth >= 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div>
         <h1 className="text-lg font-semibold">
           {greeting}, {name} 👋
@@ -58,48 +58,54 @@ export default async function DashboardPage() {
         </Alert>
       ))}
 
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-brand via-brand to-brand/85 text-brand-foreground shadow-lg shadow-brand/20">
-        <CardContent className="py-5">
-          <p className="text-sm text-brand-foreground/80">Total balance</p>
-          <p className="mt-1 text-3xl font-semibold tracking-tight">
-            {formatMoney(data.availableNow, data.currency)}
-          </p>
-          <p className="mt-1 flex items-center gap-1 text-xs text-brand-foreground/80">
-            {balanceUp ? (
-              <ArrowUpRight className="size-3.5" />
-            ) : (
-              <ArrowDownRight className="size-3.5" />
-            )}
-            {formatMoney(Math.abs(data.balanceChangeThisMonth), data.currency)} this month
-          </p>
-
-          <div className="mt-5 border-t border-white/15 pt-4">
-            <p className="mb-3 flex items-center gap-1.5 text-xs font-medium text-brand-foreground/90">
+      <Card>
+        <CardContent className="py-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Total balance</p>
+              <p className="mt-1 text-[1.75rem] leading-none font-semibold tabular-nums tracking-tight">
+                {formatMoney(data.availableNow, data.currency)}
+              </p>
+              <p
+                className={`mt-1.5 flex items-center gap-1 text-xs font-medium tabular-nums ${
+                  balanceUp ? "text-success" : "text-destructive"
+                }`}
+              >
+                {balanceUp ? (
+                  <ArrowUpRight className="size-3.5" />
+                ) : (
+                  <ArrowDownRight className="size-3.5" />
+                )}
+                {formatMoney(Math.abs(data.balanceChangeThisMonth), data.currency)} this month
+              </p>
+            </div>
+            <span className="flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success">
               <ShieldCheck className="size-3.5" />
-              You&apos;re protected
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <p className="text-xs text-brand-foreground/70">Expected</p>
-                <p className="text-sm font-semibold">
-                  {formatMoney(data.expectedThisMonth, data.currency)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-brand-foreground/70">Committed</p>
-                <p className="text-sm font-semibold">
-                  {formatMoney(data.committedToPay, data.currency)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-brand-foreground/70">Safe to spend</p>
-                <p className="text-sm font-semibold">
-                  {formatMoney(data.safeToSpend, data.currency)}
-                </p>
-              </div>
+              Protected
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 divide-x divide-border border-t border-border pt-3">
+            <div className="pr-3">
+              <p className="text-xs text-muted-foreground">Expected</p>
+              <p className="text-sm font-semibold tabular-nums">
+                {formatMoney(data.expectedThisMonth, data.currency)}
+              </p>
+            </div>
+            <div className="px-3">
+              <p className="text-xs text-muted-foreground">Committed</p>
+              <p className="text-sm font-semibold tabular-nums">
+                {formatMoney(data.committedToPay, data.currency)}
+              </p>
+            </div>
+            <div className="pl-3">
+              <p className="text-xs text-muted-foreground">Safe to spend</p>
+              <p className="text-sm font-semibold tabular-nums">
+                {formatMoney(data.safeToSpend, data.currency)}
+              </p>
             </div>
           </div>
-          <p className="mt-3 text-[11px] leading-snug text-brand-foreground/60">
+          <p className="mt-3 text-[11px] leading-snug text-muted-foreground">
             Safe to spend = available now, minus bills you owe
             {data.plannedSavings > 0 ? ", planned savings/tithe set-asides" : ""}
             {data.minimumReserve > 0 ? ", and your minimum reserve" : ""}.
@@ -258,7 +264,7 @@ function MiniStat({
     <Card>
       <CardContent className="py-3 text-center">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="mt-1 text-sm font-semibold">{formatMoney(value, currency)}</p>
+        <p className="mt-1 text-sm font-semibold tabular-nums">{formatMoney(value, currency)}</p>
       </CardContent>
     </Card>
   );
@@ -279,7 +285,7 @@ function SnapshotItem({
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
       <p
-        className={`text-sm font-semibold ${
+        className={`text-sm font-semibold tabular-nums ${
           tone === "success" ? "text-success" : tone === "destructive" ? "text-destructive" : ""
         }`}
       >
