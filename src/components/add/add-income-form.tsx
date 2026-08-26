@@ -65,7 +65,11 @@ export function AddIncomeForm({
 
       <div className="space-y-2">
         <Label htmlFor="account_id">Received into</Label>
-        <Select name="account_id" required>
+        <Select
+          name="account_id"
+          required
+          defaultValue={accounts.length === 1 ? accounts[0].id : undefined}
+        >
           <SelectTrigger id="account_id" className="w-full">
             <SelectValue>
               {(value: string | null) =>

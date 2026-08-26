@@ -145,7 +145,11 @@ export function SavingsRuleCard({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="from_account_id">From</Label>
-              <Select name="from_account_id" required>
+              <Select
+                name="from_account_id"
+                required
+                defaultValue={accounts.length === 1 ? accounts[0].id : undefined}
+              >
                 <SelectTrigger id="from_account_id" className="w-full">
                   <SelectValue>
                     {(value: string | null) =>

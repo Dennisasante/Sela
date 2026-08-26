@@ -158,7 +158,11 @@ export function LoanCard({
               <Label htmlFor="repay_account">
                 {loan.direction === "borrowed" ? "Paid from" : "Received into"}
               </Label>
-              <Select name="account_id" required>
+              <Select
+                name="account_id"
+                required
+                defaultValue={accounts.length === 1 ? accounts[0].id : undefined}
+              >
                 <SelectTrigger id="repay_account" className="w-full">
                   <SelectValue>
                     {(value: string | null) =>

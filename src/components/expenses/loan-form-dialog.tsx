@@ -92,7 +92,11 @@ export function LoanFormDialog({
             <Label htmlFor="loan_account">
               {direction === "borrowed" ? "Received into" : "Paid from"}
             </Label>
-            <Select name="account_id" required>
+            <Select
+              name="account_id"
+              required
+              defaultValue={accounts.length === 1 ? accounts[0].id : undefined}
+            >
               <SelectTrigger id="loan_account" className="w-full">
                 <SelectValue>
                   {(value: string | null) =>
