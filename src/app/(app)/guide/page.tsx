@@ -59,6 +59,14 @@ const sections = [
           I have&quot; with &quot;money I&apos;m owed.&quot;
         </p>
         <p>
+          Setting up recurring income no longer needs a separate step — when you add or
+          edit a client under the <strong>Clients</strong> tab, tick{" "}
+          <strong>&quot;This is a recurring client/source&quot;</strong> and fill in the
+          expected amount and day of month right there. Sela forecasts it automatically
+          into Expected every cycle from then on — you can still log a different actual
+          amount whenever it comes in.
+        </p>
+        <p>
           Selling a product? Toggle <strong>Product sale</strong> in the Income form to
           enter quantity, selling price, cost price, and delivery — Sela works out your
           profit and margin automatically.
@@ -98,6 +106,9 @@ const sections = [
           The Expenses page&apos;s <strong>Bills</strong> tab is for money you owe but
           haven&apos;t paid yet — a bill due next week doesn&apos;t touch your balance
           until you tap <strong>Mark paid</strong>, and partial payments are tracked too.
+          A recurring bill shows a clear <strong>&quot;Paid this month&quot;</strong> (or
+          &quot;Paid for [year]&quot; for yearly ones) badge once you&apos;ve settled the
+          current cycle, so it&apos;s obvious at a glance without checking payment history.
         </p>
         <p>
           The <strong>Loans</strong> tab keeps borrowed and lent money separate from
@@ -124,14 +135,24 @@ const sections = [
   },
   {
     icon: PieChart,
-    title: "Budgets",
+    title: "Budgets & categories",
     body: (
-      <p>
-        Set a monthly spending limit per category under <strong>Budgets</strong>. Each
-        budget shows actual spend, remaining amount, and a projected month-end total
-        based on your pace so far — the progress bar turns red once you&apos;re over.
-        Tap a budget to see exactly which transactions make up the total.
-      </p>
+      <>
+        <p>
+          Set a monthly spending limit per category under <strong>Budgets</strong>. Each
+          budget shows actual spend, remaining amount, and a projected month-end total
+          based on your pace so far — the progress bar turns red once you&apos;re over.
+          Tap a budget to see exactly which transactions make up the total.
+        </p>
+        <p>
+          Manage your expense categories under{" "}
+          <strong>Settings → Expense categories</strong> — give each one an icon and
+          color so they&apos;re easy to tell apart at a glance. A category you&apos;re
+          done with gets <strong>archived</strong> rather than deleted, so past expenses
+          keep their real category instead of pointing at nothing; archived categories
+          can be restored any time.
+        </p>
+      </>
     ),
   },
   {

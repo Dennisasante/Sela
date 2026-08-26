@@ -22,7 +22,7 @@ export default async function AdminLoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-black p-4">
+    <div className="dark flex min-h-dvh items-center justify-center bg-black p-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="flex items-center gap-2">

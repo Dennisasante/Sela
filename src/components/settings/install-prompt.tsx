@@ -10,7 +10,7 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-export function InstallPrompt() {
+export function InstallPrompt({ appName = "Sela" }: { appName?: string }) {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [iosGuide, setIosGuide] = useState(false);
@@ -47,18 +47,18 @@ export function InstallPrompt() {
   }
 
   if (installed) {
-    return <p className="text-sm text-muted-foreground">Sela is installed on this device.</p>;
+    return <p className="text-sm text-muted-foreground">{appName} is installed on this device.</p>;
   }
 
   if (installEvent) {
     return (
       <div className="space-y-2">
         <p className="text-sm text-muted-foreground">
-          Add Sela to your home screen for faster access and a better offline experience.
+          Add {appName} to your home screen for faster access and a better offline experience.
         </p>
         <Button onClick={handleInstall} size="sm" className="w-full">
           <Download className="size-4" />
-          Install Sela
+          Install {appName}
         </Button>
       </div>
     );
@@ -69,8 +69,8 @@ export function InstallPrompt() {
       <div className="flex items-start gap-2 text-sm text-muted-foreground">
         <Share className="mt-0.5 size-4 shrink-0" />
         <p>
-          Tap the Share icon in Safari, then choose <strong>Add to Home Screen</strong> to install
-          Sela.
+          Tap the Share icon in Safari, then choose <strong>Add to Home Screen</strong> to install{" "}
+          {appName}.
         </p>
       </div>
     );

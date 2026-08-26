@@ -3,6 +3,7 @@ import { getAdminUserOverview, getAdminStats } from "@/lib/data/admin";
 import { AdminUserRow } from "@/components/admin/admin-user-row";
 import { AdminSearch } from "@/components/admin/admin-search";
 import { PromoteAdminForm } from "@/components/admin/promote-admin-form";
+import { InstallPrompt } from "@/components/settings/install-prompt";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function AdminDashboardPage({
@@ -48,6 +49,15 @@ export default async function AdminDashboardPage({
           </CardContent>
         </Card>
       </div>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium text-neutral-400">Install</h2>
+        <Card className="border-neutral-800 bg-neutral-900 text-white">
+          <CardContent className="py-4">
+            <InstallPrompt appName="Sela Admin" />
+          </CardContent>
+        </Card>
+      </section>
 
       <section className="space-y-2">
         <h2 className="text-sm font-medium text-neutral-400">Admins ({admins.length})</h2>

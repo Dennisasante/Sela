@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-dvh bg-neutral-950 text-white">
+    <div className="dark min-h-dvh bg-neutral-950 text-white">
       <header className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
         <div className="flex items-center gap-2">
           <LogoMark className="size-7 rounded-md" />
