@@ -357,7 +357,7 @@ export type Database = {
       >;
       reminders: TableDef<Reminder, WithOptionalOwnerFields<Reminder>>;
       wishlist_items: TableDef<WishlistItem, WithOptionalOwnerFields<WishlistItem>>;
-      admin_users: TableDef<AdminUser, AdminUser>;
+      admin_users: TableDef<AdminUser, Pick<AdminUser, "user_id"> & Partial<AdminUser>>;
     };
     Views: {
       account_balances: {

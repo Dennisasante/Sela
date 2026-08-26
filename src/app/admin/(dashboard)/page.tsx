@@ -1,56 +1,89 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { getAdminUserOverview } from "@/lib/data/admin";
+import { getAdminUserOverview, getAdminStats } from "@/lib/data/admin";
+import { AdminUserRow } from "@/components/admin/admin-user-row";
+import { AdminSearch } from "@/components/admin/admin-search";
+import { PromoteAdminForm } from "@/components/admin/promote-admin-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
-function formatDateTime(value: string | null) {
-  if (!value) return "Never";
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const serviceClient = createServiceClient();
   const users = await getAdminUserOverview(serviceClient);
+  const stats = getAdminStats(users);
+
+  const filtered = q
+    ? users.filter((u) => u.email?.toLowerCase().includes(q.toLowerCase()))
+    : users;
+  const admins = users.filter((u) => u.isAdmin);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Users</h1>
-        <p className="text-sm text-neutral-400">
-          {users.length} user{users.length === 1 ? "" : "s"} signed up.
-        </p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="border-neutral-800 bg-neutral-900 text-white">
+          <CardContent className="py-4 text-center">
+            <p className="text-2xl font-semibold">{stats.totalUsers}</p>
+            <p className="text-xs text-neutral-400">Total users</p>
+          </CardContent>
+        </Card>
+        <Card className="border-neutral-800 bg-neutral-900 text-white">
+          <CardContent className="py-4 text-center">
+            <p className="text-2xl font-semibold">{stats.newThisWeek}</p>
+            <p className="text-xs text-neutral-400">New this week</p>
+          </CardContent>
+        </Card>
+        <Card className="border-neutral-800 bg-neutral-900 text-white">
+          <CardContent className="py-4 text-center">
+            <p className="text-2xl font-semibold">{stats.activeThisWeek}</p>
+            <p className="text-xs text-neutral-400">Active this week</p>
+          </CardContent>
+        </Card>
+        <Card className="border-neutral-800 bg-neutral-900 text-white">
+          <CardContent className="py-4 text-center">
+            <p className="text-2xl font-semibold">{stats.unconfirmed}</p>
+            <p className="text-xs text-neutral-400">Unconfirmed emails</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="space-y-2">
-        {users.map((row) => (
-          <Card key={row.id} className="border-neutral-800 bg-neutral-900 text-white">
-            <CardContent className="space-y-2 py-4">
-              <div className="flex items-center justify-between gap-2">
-                <p className="min-w-0 truncate font-medium">{row.email ?? "(no email)"}</p>
-                <Badge variant={row.emailConfirmed ? "success" : "secondary"} className="shrink-0">
-                  {row.emailConfirmed ? "Verified" : "Unverified"}
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-neutral-400">
-                <span>Signed up {formatDateTime(row.createdAt)}</span>
-                <span>Last sign-in {formatDateTime(row.lastSignInAt)}</span>
-                <span>{row.accounts} account{row.accounts === 1 ? "" : "s"}</span>
-                <span>{row.expenses} expense{row.expenses === 1 ? "" : "s"}</span>
-                <span>{row.incomeEntries} income entr{row.incomeEntries === 1 ? "y" : "ies"}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        {users.length === 0 && (
-          <p className="py-6 text-center text-sm text-neutral-400">No users yet.</p>
-        )}
-      </div>
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium text-neutral-400">Admins ({admins.length})</h2>
+        <Card className="border-neutral-800 bg-neutral-900 text-white">
+          <CardContent className="space-y-3 py-4">
+            <div className="space-y-1">
+              {admins.map((a) => (
+                <div key={a.id} className="flex items-center justify-between text-sm">
+                  <span>{a.email}</span>
+                  <span className="text-xs text-neutral-500">
+                    Last active {a.lastSignInAt ? new Date(a.lastSignInAt).toLocaleDateString() : "never"}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <PromoteAdminForm />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-neutral-400">
+            Users ({filtered.length}{q ? ` of ${users.length}` : ""})
+          </h2>
+        </div>
+        <AdminSearch query={q} />
+        <div className="space-y-2">
+          {filtered.map((row) => (
+            <AdminUserRow key={row.id} row={row} />
+          ))}
+          {filtered.length === 0 && (
+            <p className="py-6 text-center text-sm text-neutral-400">No matching users.</p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
