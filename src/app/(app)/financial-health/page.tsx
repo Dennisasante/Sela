@@ -21,13 +21,13 @@ export default async function FinancialHealthPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Financial health</h1>
 
-      <Card className="border-none bg-gradient-to-br from-brand to-brand/80 text-brand-foreground">
+      <Card>
         <CardContent className="py-5">
-          <p className="text-sm text-brand-foreground/80">Overview</p>
-          <p className="mt-1 text-2xl font-semibold">
+          <p className="text-xs font-medium text-muted-foreground">Overview</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight">
             {trackedCount > 0 ? `${goodCount} of ${trackedCount} factors healthy` : "Getting started"}
           </p>
-          <p className="mt-2 text-xs leading-snug text-brand-foreground/70">
+          <p className="mt-2 text-xs leading-snug text-muted-foreground">
             Each factor below is calculated straight from your real data — no arbitrary score, just
             what&apos;s actually happening with your money.
           </p>

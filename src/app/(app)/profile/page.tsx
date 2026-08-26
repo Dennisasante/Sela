@@ -47,10 +47,10 @@ export default async function ProfilePage({
         </Alert>
       )}
 
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-brand to-brand/80 text-brand-foreground">
+      <Card>
         <CardContent className="flex items-center gap-4 py-5">
-          <Avatar className="size-14 ring-2 ring-white/30">
-            <AvatarFallback className="bg-white/15 text-xl font-semibold text-brand-foreground">
+          <Avatar className="size-14">
+            <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
               {initial}
             </AvatarFallback>
           </Avatar>
@@ -61,9 +61,9 @@ export default async function ProfilePage({
                 {emailVerified ? "Verified" : "Unverified"}
               </Badge>
             </div>
-            <p className="text-sm text-brand-foreground/80">{email}</p>
+            <p className="text-sm text-muted-foreground">{email}</p>
             {memberSince && (
-              <p className="text-sm text-brand-foreground/80">Member since {memberSince}</p>
+              <p className="text-sm text-muted-foreground">Member since {memberSince}</p>
             )}
             <EditNameForm name={name} />
           </div>

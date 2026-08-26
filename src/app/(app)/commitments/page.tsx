@@ -20,13 +20,13 @@ export default async function CommitmentsPage() {
         </p>
       </div>
 
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-brand to-brand/80 text-brand-foreground">
+      <Card>
         <CardContent className="py-5 text-center">
-          <p className="text-sm text-brand-foreground/80">This month&apos;s commitments</p>
-          <p className="mt-1 text-3xl font-semibold">
+          <p className="text-xs font-medium text-muted-foreground">This month&apos;s commitments</p>
+          <p className="mt-1 text-3xl font-semibold tabular-nums tracking-tight">
             {formatMoney(overview.grandTotalThisMonth, currency)}
           </p>
-          <p className="mt-1 text-xs text-brand-foreground/70">
+          <p className="mt-1 text-xs text-muted-foreground">
             Bills owed + subscriptions + planned savings + sinking funds
           </p>
         </CardContent>

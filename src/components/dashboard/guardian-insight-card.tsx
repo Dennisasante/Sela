@@ -14,8 +14,8 @@ export function GuardianInsightCard({ insight }: { insight: GuardianInsight }) {
   const { icon: Icon, bg, fg } = TONE_STYLES[insight.tone];
 
   return (
-    <Link href={insight.href}>
-      <Card className="border-none bg-gradient-to-br from-secondary/60 to-secondary/20">
+    <Link href={insight.href} className="block">
+      <Card>
         <CardContent className="flex items-start gap-3 py-4">
           <div className={`flex size-10 shrink-0 items-center justify-center rounded-full ${bg}`}>
             <Icon className={`size-5 ${fg}`} />

@@ -44,20 +44,25 @@ export default async function BudgetsPage() {
       </div>
 
       {budgets.length > 0 && (
-        <Card className="overflow-hidden border-none bg-gradient-to-br from-brand to-brand/80 text-brand-foreground shadow-lg">
+        <Card>
           <CardContent className="flex items-center justify-between py-5">
             <div>
-              <p className="text-sm text-brand-foreground/80">Total budget</p>
-              <p className="mt-1 text-2xl font-semibold">
+              <p className="text-xs font-medium text-muted-foreground">Total budget</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
                 {formatMoney(totalLimit, currency)}
               </p>
-              <p className="mt-3 text-sm text-brand-foreground/80">
+              <p className="mt-3 text-sm text-muted-foreground tabular-nums">
                 {formatMoney(totalSpent, currency)} spent this month
               </p>
             </div>
-            <CircularProgress value={Math.min(100, overallPct)} size={84}>
-              <span className="text-lg font-semibold">{Math.round(overallPct)}%</span>
-              <span className="text-[10px] text-brand-foreground/80">spent</span>
+            <CircularProgress
+              value={Math.min(100, overallPct)}
+              size={84}
+              trackClassName="stroke-muted"
+              indicatorClassName={overallPct > 100 ? "stroke-destructive" : "stroke-primary"}
+            >
+              <span className="text-lg font-semibold tabular-nums">{Math.round(overallPct)}%</span>
+              <span className="text-[10px] text-muted-foreground">spent</span>
             </CircularProgress>
           </CardContent>
         </Card>

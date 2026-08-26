@@ -32,7 +32,7 @@ export function EditNameForm({ name }: { name: string }) {
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="flex items-center gap-1.5 text-sm text-brand-foreground/80 underline underline-offset-2"
+        className="flex items-center gap-1.5 text-sm text-muted-foreground underline underline-offset-2"
       >
         <Pencil className="size-3.5" />
         Edit name
@@ -50,7 +50,7 @@ export function EditNameForm({ name }: { name: string }) {
         name="full_name"
         defaultValue={name}
         autoFocus
-        className="h-8 flex-1 bg-white/10 text-brand-foreground placeholder:text-brand-foreground/50"
+        className="h-8 flex-1"
         placeholder="Your name"
       />
       <Button type="submit" size="sm" variant="secondary" disabled={pending}>

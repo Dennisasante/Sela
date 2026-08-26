@@ -33,10 +33,12 @@ export default async function WishlistPage() {
         />
       </div>
 
-      <Card className="overflow-hidden border-none bg-gradient-to-br from-brand to-brand/80 text-brand-foreground">
+      <Card>
         <CardContent className="py-4 text-center">
-          <p className="text-sm text-brand-foreground/80">Safe to spend right now</p>
-          <p className="mt-1 text-2xl font-semibold">{formatMoney(safeToSpend, currency)}</p>
+          <p className="text-xs font-medium text-muted-foreground">Safe to spend right now</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
+            {formatMoney(safeToSpend, currency)}
+          </p>
         </CardContent>
       </Card>
 
