@@ -193,15 +193,17 @@ export function SavingsGoalCard({
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>
+            <span className="tabular-nums">
               {formatMoney(goal.currentAmount, goal.currency)} of{" "}
               {formatMoney(goal.targetAmount, goal.currency)}
             </span>
-            <span className="font-medium text-foreground">{Math.round(goal.progressPct)}%</span>
+            <span className="font-medium tabular-nums text-foreground">
+              {Math.round(goal.progressPct)}%
+            </span>
           </div>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>
+            <span className="tabular-nums">
               {formatMoney(goal.remaining, goal.currency)} remaining
               {goal.targetDate &&
                 ` · ${goal.kind === "sinking_fund" ? "Due" : "Target"} ${formatDate(goal.targetDate)}`}

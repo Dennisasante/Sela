@@ -148,6 +148,11 @@
   }
   html {
     @apply font-sans;
+    /* Tabular figures everywhere by default — money, dates, percentages all
+       line up instead of jittering as digit widths vary. A dense financial
+       dashboard reads as precise partly because of this; standard prose
+       numerals are the exception here, not the rule. */
+    font-variant-numeric: tabular-nums;
   }
 }
 

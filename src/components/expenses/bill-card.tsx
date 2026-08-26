@@ -159,9 +159,11 @@ export function BillCard({
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-lg font-semibold">{formatMoney(bill.amount, bill.currency)}</p>
+              <p className="text-lg font-semibold tabular-nums">
+                {formatMoney(bill.amount, bill.currency)}
+              </p>
               {!bill.is_recurring && paidToDate > 0 && bill.status !== "paid" && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs tabular-nums text-muted-foreground">
                   {formatMoney(paidToDate, bill.currency)} paid ·{" "}
                   {formatMoney(outstanding, bill.currency)} left
                 </p>
