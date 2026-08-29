@@ -14,6 +14,9 @@ export default async function AdminDebugPage({
   const { data, error } = await service.auth.admin.generateLink({
     type: "magiclink",
     email,
+    options: {
+      redirectTo: "https://finance-tracker-ruddy-delta.vercel.app/auth/callback",
+    },
   });
 
   if (error) {
