@@ -6,7 +6,6 @@ import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical, Briefcase } from "lucide-react";
 import { deleteIncomeEntry } from "@/app/(app)/income/actions";
 import { formatMoney, formatDate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { IncomeEntryRow as Row } from "@/lib/data/income";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,12 +51,9 @@ export function IncomeEntryRow({ entry }: { entry: Row }) {
         </p>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={withDataSlot(
-              <Button variant="ghost" size="icon" aria-label="Entry actions">
+            render={<Button variant="ghost" size="icon" aria-label="Entry actions">
                 <MoreVertical className="size-4" />
-              </Button>,
-              "dropdown-menu-trigger"
-            )}
+              </Button>}
           />
           <DropdownMenuContent align="end">
             <DropdownMenuItem variant="destructive" disabled={pending} onClick={handleDelete}>

@@ -9,7 +9,6 @@ import {
   skipOccurrence,
 } from "@/app/(app)/income/actions";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { ExpectedIncomeRow } from "@/lib/data/planning";
 import type { Account } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,12 +104,9 @@ export function ExpectedIncomeCard({
             {!isSettled && (
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={withDataSlot(
-                    <Button variant="ghost" size="icon" aria-label="Occurrence actions">
+                  render={<Button variant="ghost" size="icon" aria-label="Occurrence actions">
                       <MoreVertical className="size-4" />
-                    </Button>,
-                    "dropdown-menu-trigger"
-                  )}
+                    </Button>}
                 />
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setReceiveOpen(true)}>

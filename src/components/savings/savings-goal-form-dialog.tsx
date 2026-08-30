@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactElement } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createSavingsGoal, updateSavingsGoal } from "@/app/(app)/savings/actions";
-import { withDataSlot } from "@/lib/utils";
 import type { Account } from "@/lib/supabase/types";
 import type { SavingsGoalProgress } from "@/lib/data/savings";
 import { Button } from "@/components/ui/button";
@@ -74,7 +73,7 @@ export function SavingsGoalFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {trigger && <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />}
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

@@ -6,7 +6,6 @@ import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { setAccountActive } from "@/app/(app)/accounts/actions";
 import type { Account } from "@/lib/supabase/types";
-import { withDataSlot } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,12 +33,9 @@ export function AccountActions({ account }: { account: Account }) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={withDataSlot(
-            <Button variant="ghost" size="icon" aria-label="Account actions">
+          render={<Button variant="ghost" size="icon" aria-label="Account actions">
               <MoreVertical className="size-4" />
-            </Button>,
-            "dropdown-menu-trigger"
-          )}
+            </Button>}
         />
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>

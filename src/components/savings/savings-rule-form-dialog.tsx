@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactElement } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createSavingsRule } from "@/app/(app)/savings/actions";
-import { withDataSlot } from "@/lib/utils";
 import type { IncomeSource } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +59,7 @@ export function SavingsRuleFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />
+      <DialogTrigger render={trigger} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>New savings / tax rule</DialogTitle>

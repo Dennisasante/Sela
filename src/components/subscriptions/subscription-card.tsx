@@ -10,7 +10,6 @@ import {
   toggleSubscriptionActive,
 } from "@/app/(app)/expenses/actions";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { SubscriptionRow } from "@/lib/data/subscriptions";
 import type { Account, ExpenseCategory } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -100,12 +99,9 @@ export function SubscriptionCard({
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={withDataSlot(
-                    <Button variant="ghost" size="icon" aria-label="Subscription actions">
+                  render={<Button variant="ghost" size="icon" aria-label="Subscription actions">
                       <MoreVertical className="size-4" />
-                    </Button>,
-                    "dropdown-menu-trigger"
-                  )}
+                    </Button>}
                 />
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>

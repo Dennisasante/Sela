@@ -6,7 +6,6 @@ import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical, Repeat } from "lucide-react";
 import { markBillPaid, deleteBill } from "@/app/(app)/expenses/actions";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { Bill, Account } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -142,12 +141,9 @@ export function BillCard({
               </Badge>
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={withDataSlot(
-                    <Button variant="ghost" size="icon" aria-label="Bill actions">
+                  render={<Button variant="ghost" size="icon" aria-label="Bill actions">
                       <MoreVertical className="size-4" />
-                    </Button>,
-                    "dropdown-menu-trigger"
-                  )}
+                    </Button>}
                 />
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem variant="destructive" disabled={pending} onClick={handleDelete}>

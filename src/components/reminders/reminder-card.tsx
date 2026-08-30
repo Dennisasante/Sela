@@ -5,7 +5,6 @@ import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical, Bell, BellOff, Repeat } from "lucide-react";
 import { deleteReminder, toggleReminderActive } from "@/app/(app)/reminders/actions";
-import { withDataSlot } from "@/lib/utils";
 import type { Reminder } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,12 +89,9 @@ export function ReminderCard({ reminder }: { reminder: Reminder }) {
           <div className="flex shrink-0 items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={withDataSlot(
-                  <Button variant="ghost" size="icon" aria-label="Reminder actions">
+                render={<Button variant="ghost" size="icon" aria-label="Reminder actions">
                     <MoreVertical className="size-4" />
-                  </Button>,
-                  "dropdown-menu-trigger"
-                )}
+                  </Button>}
               />
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>

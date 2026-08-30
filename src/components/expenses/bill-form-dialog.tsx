@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactElement } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createBill } from "@/app/(app)/expenses/actions";
-import { withDataSlot } from "@/lib/utils";
 import { toISODate } from "@/lib/format";
 import type { Account, ExpenseCategory } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,7 @@ export function BillFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />
+      <DialogTrigger render={trigger} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add bill</DialogTitle>

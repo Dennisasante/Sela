@@ -11,7 +11,6 @@ import {
   deleteUserAccount,
   demoteAdmin,
 } from "@/app/admin/actions";
-import { withDataSlot } from "@/lib/utils";
 import type { AdminUserRow as Row } from "@/lib/data/admin";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -116,17 +115,14 @@ export function AdminUserRow({ row }: { row: Row }) {
             </Badge>
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={withDataSlot(
-                  <Button
+                render={<Button
                     variant="ghost"
                     size="icon"
                     aria-label="User actions"
                     className="text-neutral-300 hover:text-white"
                   >
                     <MoreVertical className="size-4" />
-                  </Button>,
-                  "dropdown-menu-trigger"
-                )}
+                  </Button>}
               />
               <DropdownMenuContent align="end">
                 {!row.emailConfirmed && (

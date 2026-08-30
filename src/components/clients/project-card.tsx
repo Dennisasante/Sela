@@ -6,7 +6,6 @@ import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { updateProjectStatus, deleteProject } from "@/app/(app)/income/actions";
 import { formatMoney } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import { MilestoneList } from "@/components/clients/milestone-list";
 import { getIncomeCategoryColor, getIncomeCategoryLabel } from "@/lib/income-category-style";
 import type { ProjectBalance } from "@/lib/data/income";
@@ -120,12 +119,9 @@ export function ProjectCard({
             </Badge>
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={withDataSlot(
-                  <Button variant="ghost" size="icon" aria-label="Project actions">
+                render={<Button variant="ghost" size="icon" aria-label="Project actions">
                     <MoreVertical className="size-4" />
-                  </Button>,
-                  "dropdown-menu-trigger"
-                )}
+                  </Button>}
               />
               <DropdownMenuContent align="end">
                 {project.status !== "completed" && (

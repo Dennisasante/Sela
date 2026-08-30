@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactElement } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createThreshold } from "@/app/(app)/settings/actions";
-import { withDataSlot } from "@/lib/utils";
 import type { ExpenseCategory } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,7 +57,7 @@ export function ThresholdFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />
+      <DialogTrigger render={trigger} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>New alert</DialogTitle>

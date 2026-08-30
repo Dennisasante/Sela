@@ -5,7 +5,6 @@ import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createAccount, updateAccount } from "@/app/(app)/accounts/actions";
 import type { Account } from "@/lib/supabase/types";
-import { withDataSlot } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +68,7 @@ export function AccountFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {trigger && <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />}
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{account ? "Edit account" : "Add account"}</DialogTitle>

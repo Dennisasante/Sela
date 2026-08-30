@@ -12,7 +12,6 @@ import {
 } from "@/app/(app)/savings/actions";
 import { Repeat } from "lucide-react";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { SavingsGoalProgress } from "@/lib/data/savings";
 import type { Account } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -145,12 +144,9 @@ export function SavingsGoalCard({
               </Badge>
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={withDataSlot(
-                    <Button variant="ghost" size="icon" aria-label="Goal actions">
+                  render={<Button variant="ghost" size="icon" aria-label="Goal actions">
                       <MoreVertical className="size-4" />
-                    </Button>,
-                    "dropdown-menu-trigger"
-                  )}
+                    </Button>}
                 />
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>

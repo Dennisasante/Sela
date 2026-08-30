@@ -6,7 +6,6 @@ import { getErrorMessage } from "@/lib/errors";
 import { MoreVertical } from "lucide-react";
 import { deleteSavingsRule, logSetAsideTransfer } from "@/app/(app)/savings/actions";
 import { formatMoney, formatDate, toISODate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { SavingsRuleProgress } from "@/lib/data/savings";
 import type { Account } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -90,12 +89,9 @@ export function SavingsRuleCard({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={withDataSlot(
-                  <Button variant="ghost" size="icon" aria-label="Rule actions">
+                render={<Button variant="ghost" size="icon" aria-label="Rule actions">
                     <MoreVertical className="size-4" />
-                  </Button>,
-                  "dropdown-menu-trigger"
-                )}
+                  </Button>}
               />
               <DropdownMenuContent align="end">
                 <DropdownMenuItem variant="destructive" disabled={pending} onClick={handleDelete}>

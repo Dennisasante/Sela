@@ -5,7 +5,6 @@ import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createTransfer } from "@/app/(app)/accounts/actions";
 import type { Account } from "@/lib/supabase/types";
-import { withDataSlot } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,7 +53,7 @@ export function TransferDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />
+      <DialogTrigger render={trigger} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Transfer between accounts</DialogTitle>

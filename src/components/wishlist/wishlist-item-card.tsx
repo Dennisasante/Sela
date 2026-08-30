@@ -9,7 +9,6 @@ import {
   markWishlistItemPurchased,
 } from "@/app/(app)/wishlist/actions";
 import { formatMoney } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { WishlistItemWithAffordability } from "@/lib/data/wishlist";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,12 +89,9 @@ export function WishlistItemCard({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={withDataSlot(
-                  <Button variant="ghost" size="icon" aria-label="Item actions">
+                render={<Button variant="ghost" size="icon" aria-label="Item actions">
                     <MoreVertical className="size-4" />
-                  </Button>,
-                  "dropdown-menu-trigger"
-                )}
+                  </Button>}
               />
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>

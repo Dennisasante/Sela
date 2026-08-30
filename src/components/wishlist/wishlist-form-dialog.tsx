@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactElement } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createWishlistItem, updateWishlistItem } from "@/app/(app)/wishlist/actions";
-import { withDataSlot } from "@/lib/utils";
 import type { WishlistItem } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,7 +63,7 @@ export function WishlistFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {trigger && <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />}
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{item ? "Edit item" : "New wishlist item"}</DialogTitle>

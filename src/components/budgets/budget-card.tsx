@@ -7,7 +7,6 @@ import { MoreVertical, TrendingUp } from "lucide-react";
 import { deleteBudget } from "@/app/(app)/budgets/actions";
 import { getCategoryStyle } from "@/lib/category-style";
 import { formatMoney, formatDate } from "@/lib/format";
-import { withDataSlot } from "@/lib/utils";
 import type { BudgetProgress, BudgetStatus } from "@/lib/data/budgets";
 import type { ExpenseCategory } from "@/lib/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,12 +79,9 @@ export function BudgetCard({
             <Badge variant={STATUS_VARIANT[budget.status]}>{STATUS_LABEL[budget.status]}</Badge>
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={withDataSlot(
-                  <Button variant="ghost" size="icon" aria-label="Budget actions">
+                render={<Button variant="ghost" size="icon" aria-label="Budget actions">
                     <MoreVertical className="size-4" />
-                  </Button>,
-                  "dropdown-menu-trigger"
-                )}
+                  </Button>}
               />
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setEditOpen(true)}>Edit</DropdownMenuItem>

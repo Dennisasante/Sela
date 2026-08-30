@@ -7,7 +7,6 @@ import { MoreVertical } from "lucide-react";
 import { deleteExpense } from "@/app/(app)/expenses/actions";
 import { formatMoney, formatDate } from "@/lib/format";
 import { getCategoryStyle } from "@/lib/category-style";
-import { withDataSlot } from "@/lib/utils";
 import type { ExpenseRow as Row } from "@/lib/data/expenses";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,12 +56,9 @@ export function ExpenseRow({ expense }: { expense: Row }) {
         </p>
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={withDataSlot(
-              <Button variant="ghost" size="icon" aria-label="Expense actions">
+            render={<Button variant="ghost" size="icon" aria-label="Expense actions">
                 <MoreVertical className="size-4" />
-              </Button>,
-              "dropdown-menu-trigger"
-            )}
+              </Button>}
           />
           <DropdownMenuContent align="end">
             <DropdownMenuItem variant="destructive" disabled={pending} onClick={handleDelete}>

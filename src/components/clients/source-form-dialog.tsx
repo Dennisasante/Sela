@@ -4,7 +4,6 @@ import { useState, useTransition, type ReactElement } from "react";
 import { toast } from "@/lib/toast";
 import { getErrorMessage } from "@/lib/errors";
 import { createIncomeSource, updateIncomeSource } from "@/app/(app)/settings/actions";
-import { withDataSlot } from "@/lib/utils";
 import { toISODate } from "@/lib/format";
 import type { Account, IncomeSource, RecurringIncome } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -73,7 +72,7 @@ export function SourceFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {trigger && <DialogTrigger render={withDataSlot(trigger, "dialog-trigger")} />}
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{source ? "Edit client / source" : "Add a client / income source"}</DialogTitle>
